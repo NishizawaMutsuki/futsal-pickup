@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { MapPin, Calendar, Clock, Banknote } from "lucide-react-native";
+import { MapPin, Calendar, Clock } from "lucide-react-native";
 import SkillBadge from "./SkillBadge";
 import ProgressBar from "./ProgressBar";
-import { getSpotsLeft } from "../data/mock";
+import { getSpotsLeft } from "../lib/utils";
 
 export default function MatchCard({ match, onPress }) {
   const spotsLeft = getSpotsLeft(match);

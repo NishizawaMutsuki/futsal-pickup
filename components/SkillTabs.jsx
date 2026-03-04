@@ -1,10 +1,10 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import { LEVELS } from "../data/mock";
+import { LEVEL_OPTIONS } from "../data/constants";
 
 export default function SkillTabs({ selected, onSelect }) {
   return (
     <View className="flex-row gap-2 px-4 py-3">
-      {LEVELS.map((level) => (
+      {LEVEL_OPTIONS.map((level) => (
         <TouchableOpacity
           key={level.key}
           onPress={() => onSelect(level.key)}

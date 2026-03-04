@@ -11,38 +11,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { X, Minus, Plus, CheckCircle } from "lucide-react-native";
 import StickyButton from "../components/StickyButton";
-
-function FormField({ label, children }) {
-  return (
-    <View className="gap-1.5">
-      <Text className="text-sm font-semibold text-gray-700">{label}</Text>
-      {children}
-    </View>
-  );
-}
-
-function LevelOption({ label, value, selected, onSelect }) {
-  return (
-    <TouchableOpacity
-      onPress={() => onSelect(value)}
-      className={
-        selected
-          ? "flex-1 py-3 rounded-xl bg-emerald-600 items-center"
-          : "flex-1 py-3 rounded-xl bg-gray-100 items-center"
-      }
-    >
-      <Text
-        className={
-          selected
-            ? "text-sm font-semibold text-white"
-            : "text-sm text-gray-600"
-        }
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-}
+import FormField from "../components/ui/FormField";
+import SelectOption from "../components/ui/SelectOption";
+import { COLORS, LEVELS } from "../data/constants";
 
 export default function CreateMatchScreen() {
   const insets = useSafeAreaInsets();
@@ -60,6 +31,13 @@ export default function CreateMatchScreen() {
 
   const canSubmit = title && venue && date && startTime && endTime && price;
 
+  // レベル選択用オプション（"all"を除外）
+  const levelOptions = [
+    LEVELS.beginner,
+    LEVELS.intermediate,
+    LEVELS.advanced,
+  ];
+
   if (submitted) {
     return (
       <View
@@ -68,7 +46,7 @@ export default function CreateMatchScreen() {
       >
         <View className="items-center gap-4">
           <View className="w-20 h-20 bg-emerald-100 rounded-full items-center justify-center">
-            <CheckCircle size={40} color="#059669" />
+            <CheckCircle size={40} color={COLORS.primary} />
           </View>
           <Text className="text-xl font-bold text-gray-900">
             募集を公開しました！
@@ -93,7 +71,7 @@ export default function CreateMatchScreen() {
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
         <TouchableOpacity onPress={() => router.back()}>
-          <X size={24} color="#374151" />
+          <X size={24} color={COLORS.gray700} />
         </TouchableOpacity>
         <Text className="text-lg font-bold text-gray-900">マッチを作成</Text>
         <View className="w-6" />
@@ -104,7 +82,7 @@ export default function CreateMatchScreen() {
           <TextInput
             className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
             placeholder="例: 渋谷エンジョイフットサル"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={COLORS.gray400}
             value={title}
             onChangeText={setTitle}
           />
@@ -114,7 +92,7 @@ export default function CreateMatchScreen() {
           <TextInput
             className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
             placeholder="例: アディダス フットサルパーク 渋谷"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={COLORS.gray400}
             value={venue}
             onChangeText={setVenue}
           />
@@ -124,7 +102,7 @@ export default function CreateMatchScreen() {
           <TextInput
             className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
             placeholder="例: 2026-03-15"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={COLORS.gray400}
             value={date}
             onChangeText={setDate}
           />
@@ -136,7 +114,7 @@ export default function CreateMatchScreen() {
               <TextInput
                 className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
                 placeholder="19:00"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={COLORS.gray400}
                 value={startTime}
                 onChangeText={setStartTime}
               />
@@ -147,7 +125,7 @@ export default function CreateMatchScreen() {
               <TextInput
                 className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
                 placeholder="21:00"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={COLORS.gray400}
                 value={endTime}
                 onChangeText={setEndTime}
               />
@@ -157,24 +135,15 @@ export default function CreateMatchScreen() {
 
         <FormField label="レベル">
           <View className="flex-row gap-2">
-            <LevelOption
-              label="初心者OK"
-              value="beginner"
-              selected={level === "beginner"}
-              onSelect={setLevel}
-            />
-            <LevelOption
-              label="経験者"
-              value="intermediate"
-              selected={level === "intermediate"}
-              onSelect={setLevel}
-            />
-            <LevelOption
-              label="ガチ"
-              value="advanced"
-              selected={level === "advanced"}
-              onSelect={setLevel}
-            />
+            {levelOptions.map((option) => (
+              <SelectOption
+                key={option.key}
+                label={option.label}
+                value={option.key}
+                selected={level === option.key}
+                onSelect={setLevel}
+              />
+            ))}
           </View>
         </FormField>
 
@@ -184,7 +153,7 @@ export default function CreateMatchScreen() {
               onPress={() => setMaxPlayers(Math.max(4, maxPlayers - 1))}
               className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
             >
-              <Minus size={18} color="#374151" />
+              <Minus size={18} color={COLORS.gray700} />
             </TouchableOpacity>
             <Text className="text-2xl font-bold text-gray-900 w-12 text-center">
               {maxPlayers}
@@ -193,7 +162,7 @@ export default function CreateMatchScreen() {
               onPress={() => setMaxPlayers(Math.min(20, maxPlayers + 1))}
               className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
             >
-              <Plus size={18} color="#374151" />
+              <Plus size={18} color={COLORS.gray700} />
             </TouchableOpacity>
             <Text className="text-sm text-gray-400">人</Text>
           </View>
@@ -205,7 +174,7 @@ export default function CreateMatchScreen() {
             <TextInput
               className="flex-1 text-base text-gray-900"
               placeholder="1800"
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={COLORS.gray400}
               keyboardType="number-pad"
               value={price}
               onChangeText={setPrice}
@@ -217,7 +186,7 @@ export default function CreateMatchScreen() {
           <TextInput
             className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
             placeholder="マッチの雰囲気やルールを書きましょう"
-            placeholderTextColor="#9ca3af"
+            placeholderTextColor={COLORS.gray400}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
@@ -239,8 +208,8 @@ export default function CreateMatchScreen() {
           <Switch
             value={autoApprove}
             onValueChange={setAutoApprove}
-            trackColor={{ false: "#d1d5db", true: "#a7f3d0" }}
-            thumbColor={autoApprove ? "#059669" : "#f4f4f5"}
+            trackColor={{ false: COLORS.gray300, true: COLORS.primaryLight }}
+            thumbColor={autoApprove ? COLORS.primary : "#f4f4f5"}
           />
         </View>
       </ScrollView>

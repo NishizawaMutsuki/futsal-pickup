@@ -1,11 +1,5 @@
-export const AREAS = ["渋谷", "新宿", "代々木", "六本木", "池袋", "恵比寿"];
-
-export const LEVELS = [
-  { key: "all", label: "すべて" },
-  { key: "beginner", label: "初心者OK", color: "emerald" },
-  { key: "intermediate", label: "経験者", color: "amber" },
-  { key: "advanced", label: "ガチ", color: "red" },
-];
+// ===== モックデータのみ =====
+// 定数は constants.js、ヘルパー関数は lib/utils.js を参照
 
 export const MATCHES = [
   {
@@ -312,9 +306,3 @@ export const NOTIFICATIONS = [
     read: true,
   },
 ];
-
-// Helpers
-export const getMatchById = (id) => MATCHES.find((m) => m.id === id);
-export const getLevelConfig = (key) =>
-  LEVELS.find((l) => l.key === key) || LEVELS[0];
-export const getSpotsLeft = (match) => match.maxPlayers - match.currentPlayers;

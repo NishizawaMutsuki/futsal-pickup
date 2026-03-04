@@ -1,3 +1,4 @@
+// ===== カラー定数 =====
 export const COLORS = {
   primary: "#059669",
   primaryDark: "#047857",
@@ -13,27 +14,50 @@ export const COLORS = {
   gray900: "#111827",
 };
 
-export const LEVEL_CONFIG = {
+// ===== エリア =====
+export const AREAS = ["渋谷", "新宿", "代々木", "六本木", "池袋", "恵比寿"];
+
+// ===== レベル設定 =====
+// LEVEL_CONFIGとLEVELSを統合
+export const LEVELS = {
+  all: {
+    key: "all",
+    label: "すべて",
+    color: "gray",
+    bg: "bg-gray-100",
+    text: "text-gray-700",
+    hex: "#6b7280",
+  },
   beginner: {
+    key: "beginner",
     label: "初心者OK",
+    color: "emerald",
     bg: "bg-emerald-100",
     text: "text-emerald-700",
-    color: "#059669",
+    hex: "#059669",
   },
   intermediate: {
+    key: "intermediate",
     label: "経験者",
+    color: "amber",
     bg: "bg-amber-100",
     text: "text-amber-700",
-    color: "#d97706",
+    hex: "#d97706",
   },
   advanced: {
+    key: "advanced",
     label: "ガチ",
+    color: "red",
     bg: "bg-red-100",
     text: "text-red-700",
-    color: "#dc2626",
+    hex: "#dc2626",
   },
 };
 
+// フィルタータブ用の配列
+export const LEVEL_OPTIONS = Object.values(LEVELS);
+
+// ===== 通知タイプ =====
 export const NOTIFICATION_TYPES = {
   reminder: { icon: "Clock", color: "#059669", bg: "bg-emerald-100" },
   new_match: { icon: "MapPin", color: "#3b82f6", bg: "bg-blue-100" },

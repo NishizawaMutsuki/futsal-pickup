@@ -4,7 +4,6 @@ import { useLocalSearchParams } from "expo-router";
 import {
   Calendar,
   Clock,
-  MapPin,
   Users,
   Banknote,
   CheckCircle,
@@ -15,17 +14,9 @@ import ProgressBar from "../../components/ProgressBar";
 import OrganizerCard from "../../components/OrganizerCard";
 import ReviewCard from "../../components/ReviewCard";
 import StickyButton from "../../components/StickyButton";
-import { getMatchById } from "../../data/mock";
-
-function InfoItem({ icon, label, value }) {
-  return (
-    <View className="flex-1 bg-white rounded-2xl p-3 items-center gap-1 border border-gray-100">
-      {icon}
-      <Text className="text-xs text-gray-400">{label}</Text>
-      <Text className="text-sm font-semibold text-gray-900">{value}</Text>
-    </View>
-  );
-}
+import InfoItem from "../../components/ui/InfoItem";
+import { getMatchById, formatPrice, formatDate, formatTimeRange, formatPlayerCount } from "../../lib/utils";
+import { COLORS } from "../../data/constants";
 
 export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams();
@@ -59,26 +50,26 @@ export default function MatchDetailScreen() {
           {/* Info grid */}
           <View className="flex-row gap-2">
             <InfoItem
-              icon={<Calendar size={18} color="#059669" />}
+              icon={<Calendar size={18} color={COLORS.primary} />}
               label="日程"
-              value={`${match.date}（${match.dayLabel}）`}
+              value={formatDate(match.date, match.dayLabel)}
             />
             <InfoItem
-              icon={<Clock size={18} color="#059669" />}
+              icon={<Clock size={18} color={COLORS.primary} />}
               label="時間"
-              value={`${match.startTime}〜${match.endTime}`}
+              value={formatTimeRange(match.startTime, match.endTime)}
             />
           </View>
           <View className="flex-row gap-2">
             <InfoItem
-              icon={<Users size={18} color="#059669" />}
+              icon={<Users size={18} color={COLORS.primary} />}
               label="定員"
-              value={`${match.currentPlayers}/${match.maxPlayers}人`}
+              value={formatPlayerCount(match.currentPlayers, match.maxPlayers)}
             />
             <InfoItem
-              icon={<Banknote size={18} color="#059669" />}
+              icon={<Banknote size={18} color={COLORS.primary} />}
               label="参加費"
-              value={`¥${match.price.toLocaleString()}`}
+              value={formatPrice(match.price)}
             />
           </View>
 
@@ -144,7 +135,7 @@ export default function MatchDetailScreen() {
       {/* Joined confirmation */}
       {joined && (
         <View className="px-4 py-3 bg-emerald-50 flex-row items-center gap-2 border-t border-emerald-100">
-          <CheckCircle size={18} color="#059669" />
+          <CheckCircle size={18} color={COLORS.primary} />
           <Text className="text-sm text-emerald-700 flex-1">
             参加確定！当日QRコードを提示してください
           </Text>
@@ -152,7 +143,7 @@ export default function MatchDetailScreen() {
       )}
 
       <StickyButton
-        label={joined ? "参加済み" : `参加する（¥${match.price.toLocaleString()}）`}
+        label={joined ? "参加済み" : `参加する（${formatPrice(match.price)}）`}
         disabled={joined}
         onPress={() => setJoined(true)}
       />

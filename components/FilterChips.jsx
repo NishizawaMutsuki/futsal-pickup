@@ -1,5 +1,5 @@
 import { ScrollView, Text, TouchableOpacity } from "react-native";
-import { AREAS } from "../data/mock";
+import { AREAS } from "../data/constants";
 
 export default function FilterChips({ selected, onSelect }) {
   return (
