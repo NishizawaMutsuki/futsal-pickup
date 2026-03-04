@@ -4,41 +4,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PickUp - a futsal matching platform for finding pickup games in Tokyo urban areas. Currently in Phase 0 (prototype). Documentation and UI are in Japanese.
+PickUp - a futsal matching platform for finding pickup games in Tokyo urban areas. Currently in Phase 0 (prototype). Web-first strategy. Documentation and UI are in Japanese.
 
 ## Commands
 
 ```bash
-npm start          # Start Expo dev server
-npm run ios        # Start on iOS simulator
-npm run android    # Start on Android emulator
-npm run web        # Start web version (localhost:8081)
+npm run dev        # Start Next.js dev server (localhost:3000)
+npm run build      # Production build
+npm start          # Start production server
+npm run lint       # ESLint
 ```
 
 ## Tech Stack
 
-- **Expo SDK 55** + **React Native 0.83** + **React 19**
-- **Expo Router** - File-based routing in `app/` directory
-- **NativeWind v4** + **Tailwind CSS v3** - Use `className` prop for styling (not `StyleSheet`)
-- **Lucide React Native** - Icons (`lucide-react-native`)
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** via `@tailwindcss/postcss` — CSS variables for theming
+- **Lucide React** - Icons (`lucide-react`)
 - **Vercel** for web hosting (auto-deploys from `main` branch)
 
 ## Architecture
 
-File-based routing with Expo Router. All screens live in `app/`:
-- `app/_layout.jsx` - Root layout (wraps all screens)
-- `app/index.jsx` - Home screen
-- Add new screens as `app/<name>.jsx`
+File-based routing with Next.js App Router. All pages live in `app/`:
+- `app/layout.tsx` - Root layout (ThemeProvider, font, Analytics)
+- `app/page.tsx` - Home screen
+- `app/create/page.tsx` - Match creation
+- `app/profile/page.tsx` - User profile
+- `app/notifications/page.tsx` - Notifications
+- `app/match/[id]/page.tsx` - Match detail (dynamic route)
 
-Styling uses NativeWind: write Tailwind classes in `className` props. Global CSS is in `global.css`, imported in `app/_layout.jsx`.
+Components in `components/pickup/` — domain-specific UI components.
+Data layer in `data/` — TypeScript types, mock data, constants.
+
+Styling: Tailwind classes in `className` props. Theme CSS variables in `app/globals.css`. 4 themes: dark (default), light, field, midnight.
 
 Config files:
-- `app.json` - Expo app config
-- `tailwind.config.js` - Tailwind config (must include `nativewind/preset`)
-- `babel.config.js` - Babel config (includes `nativewind/babel` preset)
-- `metro.config.js` - Metro bundler config (wrapped with `withNativeWind`)
+- `next.config.mjs` - Next.js config
+- `postcss.config.mjs` - PostCSS with @tailwindcss/postcss
+- `tsconfig.json` - TypeScript config (path alias `@/*`)
+- `components.json` - shadcn/ui config
 
-The app is mobile-first, portrait orientation. All UI text should be in Japanese.
+The app is mobile-first (max-w-[390px]). All UI text should be in Japanese.
 
 ## Key Documentation
 
