@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight, ExternalLink } from "lucide-react"
+import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight, ExternalLink, Globe } from "lucide-react"
 import type { Match } from "@/data/types"
 import { SkillBadge } from "@/components/ui/skill-badge"
 import { StarRating } from "@/components/ui/star-rating"
 import { Avatar } from "@/components/ui/avatar"
 import { formatMatchDate } from "@/lib/format"
 import { useApp } from "@/contexts/app-context"
+import { goBack } from "@/lib/navigation"
 
 export function MatchDetail({ match }: { match: Match }) {
   const router = useRouter()
@@ -40,7 +41,10 @@ export function MatchDetail({ match }: { match: Match }) {
     }
   }
 
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(match.venue)}`
+  const venueQuery = encodeURIComponent(match.venue)
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${venueQuery}`
+  const mapsEmbedUrl = `https://www.google.com/maps?q=${venueQuery}&output=embed`
+  const venueSearchUrl = `https://www.google.com/search?q=${venueQuery}`
 
   const joinButtonLabel = isJoined ? "参加済み" : isFull ? "満員" : "参加する"
 
@@ -49,7 +53,7 @@ export function MatchDetail({ match }: { match: Match }) {
       {/* Header */}
       <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-border">
         <button
-          onClick={() => router.back()}
+          onClick={() => goBack(router)}
           className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
           aria-label="戻る"
         >
@@ -103,14 +107,31 @@ export function MatchDetail({ match }: { match: Match }) {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
-            {/* Map placeholder */}
+            {/* Google Maps embed */}
             <a
               href={mapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 h-24 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors cursor-pointer block"
+              className="mt-3 block rounded-xl overflow-hidden relative group"
             >
-              <span className="text-xs text-muted-foreground">Google Mapsで開く</span>
+              <iframe
+                src={mapsEmbedUrl}
+                className="w-full h-32 rounded-xl pointer-events-none"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title={`${match.venue}の地図`}
+              />
+              <div className="absolute inset-0 bg-transparent group-hover:bg-black/10 transition-colors rounded-xl" />
+            </a>
+            {/* Venue website link */}
+            <a
+              href={venueSearchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex items-center gap-2 text-xs text-primary font-medium hover:underline"
+            >
+              <Globe className="w-3.5 h-3.5" />
+              施設の情報を検索
             </a>
           </div>
 

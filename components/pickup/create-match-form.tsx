@@ -15,6 +15,7 @@ import {
   Plus
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { goBack } from "@/lib/navigation"
 import { VENUES, SKILL_LEVEL_OPTIONS, CAPACITY_LIMITS } from "@/data/constants"
 import type { SkillLevel, Venue } from "@/data/types"
 import { useApp } from "@/contexts/app-context"
@@ -102,7 +103,7 @@ export function CreateMatchForm() {
       <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-border">
         <h1 className="text-lg font-bold text-foreground">マッチを作成</h1>
         <button
-          onClick={() => router.back()}
+          onClick={() => goBack(router)}
           className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
           aria-label="閉じる"
         >

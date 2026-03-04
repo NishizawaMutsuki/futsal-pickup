@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
+import { goBack } from "@/lib/navigation"
 import { Mail, ArrowLeft } from "lucide-react"
 import { MobileShell } from "@/components/ui/mobile-shell"
 import { createClient } from "@/lib/supabase/client"
@@ -66,7 +67,7 @@ function LoginContent() {
         {/* Header */}
         <header className="flex items-center px-4 py-3">
           <button
-            onClick={() => router.back()}
+            onClick={() => goBack(router)}
             className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
             aria-label="戻る"
           >

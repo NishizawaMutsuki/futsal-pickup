@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import type { ReactNode } from "react"
+import { goBack } from "@/lib/navigation"
 
 export function LegalPageLayout({ title, children }: { title: string; children: ReactNode }) {
   const router = useRouter()
@@ -11,7 +12,7 @@ export function LegalPageLayout({ title, children }: { title: string; children: 
     <div className="flex flex-col min-h-screen">
       <header className="sticky top-0 z-40 flex items-center gap-3 px-4 py-3 bg-background/80 backdrop-blur-xl border-b border-border">
         <button
-          onClick={() => router.back()}
+          onClick={() => goBack(router)}
           className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
           aria-label="戻る"
         >
