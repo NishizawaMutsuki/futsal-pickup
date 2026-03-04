@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import {
   X,
@@ -16,7 +16,6 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { VENUES, SKILL_LEVEL_OPTIONS, CAPACITY_LIMITS } from "@/data/constants"
-import { MY_PROFILE } from "@/data/mock"
 import type { SkillLevel, Venue } from "@/data/types"
 import { useApp } from "@/contexts/app-context"
 
@@ -26,7 +25,14 @@ const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"]
 
 export function CreateMatchForm() {
   const router = useRouter()
-  const { addMatch } = useApp()
+  const { user, profile, addMatch } = useApp()
+
+  // Auth guard: redirect to login if not authenticated
+  useEffect(() => {
+    if (!user) {
+      router.replace("/login?next=/create")
+    }
+  }, [user, router])
   const [title, setTitle] = useState("")
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [showVenueModal, setShowVenueModal] = useState(false)
@@ -64,12 +70,12 @@ export function CreateMatchForm() {
       id: `m_${Date.now()}`,
       title: title.trim(),
       host: {
-        id: MY_PROFILE.id,
-        name: MY_PROFILE.name,
-        avatar: MY_PROFILE.avatar,
-        rating: MY_PROFILE.rating,
-        matchCount: MY_PROFILE.hostCount,
-        verified: MY_PROFILE.verified,
+        id: profile.id,
+        name: profile.name,
+        avatar: profile.avatar,
+        rating: profile.rating,
+        matchCount: profile.hostCount,
+        verified: profile.verified,
       },
       venue: selectedVenue!.name,
       area: selectedVenue!.area,

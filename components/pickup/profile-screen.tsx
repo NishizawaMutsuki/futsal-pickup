@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronRight, Calendar, MapPin, CheckCircle, Clock, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { ChevronRight, Calendar, MapPin, CheckCircle, Clock, X, LogOut, LogIn } from "lucide-react"
 import { BottomNav } from "./bottom-nav"
 import { StarRating } from "@/components/ui/star-rating"
 import { Avatar } from "@/components/ui/avatar"
@@ -82,12 +83,41 @@ function EditProfileModal({ name, position, onSave, onClose }: {
 }
 
 export function ProfileScreen() {
-  const { profile, updateProfile } = useApp()
+  const router = useRouter()
+  const { user, profile, updateProfile, signOut } = useApp()
   const [showEditModal, setShowEditModal] = useState(false)
 
   const handleSaveProfile = (name: string, position: string) => {
     updateProfile({ name, position })
     setShowEditModal(false)
+  }
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push("/")
+  }
+
+  // Not logged in: show login prompt
+  if (!user) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <main className="flex-1 flex flex-col items-center justify-center px-6 pb-20">
+          <Avatar name="?" className="w-20 h-20 text-2xl mb-4" />
+          <h1 className="text-xl font-bold text-foreground mb-2">マイページ</h1>
+          <p className="text-sm text-muted-foreground mb-6 text-center">
+            ログインしてプロフィールを管理しよう
+          </p>
+          <Link
+            href="/login?next=/profile"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <LogIn className="w-4 h-4" />
+            ログイン
+          </Link>
+        </main>
+        <BottomNav />
+      </div>
+    )
   }
 
   return (
@@ -99,17 +129,27 @@ export function ProfileScreen() {
           <div className="flex flex-col items-center text-center">
             <Avatar name={profile.name} className="w-20 h-20 text-2xl mb-3" />
             <h1 className="text-xl font-bold text-foreground">{profile.name}</h1>
+            <p className="text-xs text-muted-foreground">{user.email}</p>
             <div className="flex items-center gap-2 mt-2">
               <StarRating rating={profile.rating} size="md" />
               <span className="text-sm font-semibold text-foreground">{profile.rating}</span>
               <span className="text-sm text-muted-foreground">({profile.reviews.length}件)</span>
             </div>
-            <button
-              onClick={() => setShowEditModal(true)}
-              className="mt-4 px-5 py-2 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
-            >
-              プロフィールを編集
-            </button>
+            <div className="flex items-center gap-3 mt-4">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="px-5 py-2 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
+              >
+                プロフィールを編集
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-destructive transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                ログアウト
+              </button>
+            </div>
           </div>
         </section>
 

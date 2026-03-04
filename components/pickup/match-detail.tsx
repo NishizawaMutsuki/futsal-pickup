@@ -12,13 +12,17 @@ import { useApp } from "@/contexts/app-context"
 
 export function MatchDetail({ match }: { match: Match }) {
   const router = useRouter()
-  const { joinMatch, joinedMatchIds } = useApp()
+  const { user, joinMatch, joinedMatchIds } = useApp()
   const dateDisplay = formatMatchDate(match)
 
   const isJoined = joinedMatchIds.has(match.id)
   const isFull = match.currentPlayers >= match.maxPlayers
 
   const handleJoin = () => {
+    if (!user) {
+      router.push(`/login?next=${encodeURIComponent(`/match/${match.id}`)}`)
+      return
+    }
     if (isJoined || isFull) return
     if (window.confirm(`「${match.title}」に参加しますか？`)) {
       joinMatch(match.id)

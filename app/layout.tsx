@@ -3,29 +3,25 @@ import { Noto_Sans_JP } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/pickup/theme-provider'
 import { AppProvider } from '@/contexts/app-context'
+import { createClient } from '@/lib/supabase/server'
 import './globals.css'
 
 const notoSansJP = Noto_Sans_JP({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
-  title: 'PickUp - フットサルマッチングアプリ',
-  description: 'フットサルの即席マッチを見つけて参加しよう',
-  icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+  title: 'PickUp - フットサルマッチング',
+  description: '東京都内のフットサル即席マッチを見つけて参加しよう。レベル別・エリア別で簡単にマッチング。',
+  openGraph: {
+    title: 'PickUp - フットサルマッチング',
+    description: '東京都内のフットサル即席マッチを見つけて参加しよう。',
+    type: 'website',
+    locale: 'ja_JP',
+    siteName: 'PickUp',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PickUp - フットサルマッチング',
+    description: '東京都内のフットサル即席マッチを見つけて参加しよう。',
   },
 }
 
@@ -37,16 +33,24 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Fetch initial user session on server
+  const supabase = await createClient()
+  let initialUser = null
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser()
+    initialUser = user
+  }
+
   return (
     <html lang="ja">
       <body className={`${notoSansJP.className} antialiased`}>
         <ThemeProvider>
-          <AppProvider>
+          <AppProvider initialUser={initialUser}>
             {children}
           </AppProvider>
         </ThemeProvider>
