@@ -1,9 +1,10 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Bell, Calendar, Users, Star, XCircle, UserPlus } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "./bottom-nav"
-import { NOTIFICATIONS } from "@/data/mock"
+import { useApp } from "@/contexts/app-context"
 import type { Notification } from "@/data/types"
 
 type NotificationType = Notification["type"]
@@ -36,14 +37,15 @@ const typeConfig: Record<NotificationType, { icon: typeof Bell; color: string; b
   },
 }
 
-function NotificationItem({ notification }: { notification: Notification }) {
+function NotificationItem({ notification, onTap }: { notification: Notification; onTap: () => void }) {
   const config = typeConfig[notification.type]
   const Icon = config.icon
 
   return (
-    <div
+    <button
+      onClick={onTap}
       className={cn(
-        "flex items-start gap-3 p-4 border-b border-border transition-colors",
+        "flex items-start gap-3 p-4 border-b border-border transition-colors w-full text-left hover:bg-secondary/50",
         notification.read ? "opacity-60" : "bg-primary/[0.03]"
       )}
     >
@@ -65,12 +67,18 @@ function NotificationItem({ notification }: { notification: Notification }) {
         <p className="text-sm text-muted-foreground mt-0.5 truncate">{notification.message}</p>
         <p className="text-xs text-muted-foreground/70 mt-1">{notification.time}</p>
       </div>
-    </div>
+    </button>
   )
 }
 
 export function NotificationsScreen() {
-  const unreadCount = NOTIFICATIONS.filter((n) => !n.read).length
+  const router = useRouter()
+  const { notifications, unreadCount, markAllRead, markRead } = useApp()
+
+  const handleTap = (notification: Notification) => {
+    markRead(notification.id)
+    router.push(`/match/${notification.matchId}`)
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -85,7 +93,10 @@ export function NotificationsScreen() {
               </span>
             )}
           </div>
-          <button className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+          <button
+            onClick={markAllRead}
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
             すべて既読
           </button>
         </div>
@@ -93,13 +104,17 @@ export function NotificationsScreen() {
 
       {/* Notification List */}
       <div className="flex-1 pb-4">
-        {NOTIFICATIONS.map((notification) => (
-          <NotificationItem key={notification.id} notification={notification} />
+        {notifications.map((notification) => (
+          <NotificationItem
+            key={notification.id}
+            notification={notification}
+            onTap={() => handleTap(notification)}
+          />
         ))}
       </div>
 
       {/* Bottom Nav */}
-      <BottomNav activeTab="notifications" />
+      <BottomNav />
     </div>
   )
 }

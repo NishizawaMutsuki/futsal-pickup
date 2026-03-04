@@ -16,12 +16,17 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { VENUES, SKILL_LEVEL_OPTIONS, CAPACITY_LIMITS } from "@/data/constants"
+import { MY_PROFILE } from "@/data/mock"
 import type { SkillLevel, Venue } from "@/data/types"
+import { useApp } from "@/contexts/app-context"
 
 const skillLevels = SKILL_LEVEL_OPTIONS.filter((o) => o.key !== "all") as { key: SkillLevel; label: string }[]
 
+const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"]
+
 export function CreateMatchForm() {
   const router = useRouter()
+  const { addMatch } = useApp()
   const [title, setTitle] = useState("")
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [showVenueModal, setShowVenueModal] = useState(false)
@@ -34,13 +39,54 @@ export function CreateMatchForm() {
   const [fee, setFee] = useState("1500")
   const [rules, setRules] = useState("")
   const [autoApprove, setAutoApprove] = useState(true)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const filteredVenues = VENUES.filter(v =>
     v.name.includes(venueSearch) || v.area.includes(venueSearch)
   )
 
+  const validate = (): boolean => {
+    const newErrors: Record<string, string> = {}
+    if (!title.trim()) newErrors.title = "タイトルを入力してください"
+    if (!selectedVenue) newErrors.venue = "会場を選択してください"
+    if (!date) newErrors.date = "日付を選択してください"
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
   const handleSubmit = () => {
-    // TODO: Submit form
+    if (!validate()) return
+
+    const dateObj = new Date(date)
+    const dayLabel = DAY_LABELS[dateObj.getDay()]
+
+    addMatch({
+      id: `m_${Date.now()}`,
+      title: title.trim(),
+      host: {
+        id: MY_PROFILE.id,
+        name: MY_PROFILE.name,
+        avatar: MY_PROFILE.avatar,
+        rating: MY_PROFILE.rating,
+        matchCount: MY_PROFILE.hostCount,
+        verified: MY_PROFILE.verified,
+      },
+      venue: selectedVenue!.name,
+      area: selectedVenue!.area,
+      date,
+      dayLabel,
+      startTime,
+      endTime,
+      level: skillLevel,
+      currentPlayers: 1,
+      maxPlayers: capacity,
+      price: parseInt(fee) || 0,
+      description: rules || "",
+      rules: rules ? rules.split(/[、,\n]+/).map((r) => r.trim()).filter(Boolean) : [],
+      reviews: [],
+    })
+
+    alert("マッチを作成しました！")
     router.push("/")
   }
 
@@ -69,10 +115,14 @@ export function CreateMatchForm() {
             <input
               type="text"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => { setTitle(e.target.value); setErrors((p) => ({ ...p, title: "" })) }}
               placeholder="渋谷エンジョイフットサル"
-              className="w-full h-12 px-4 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              className={cn(
+                "w-full h-12 px-4 rounded-xl bg-input border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all",
+                errors.title ? "border-destructive" : "border-border"
+              )}
             />
+            {errors.title && <p className="text-xs text-destructive mt-1">{errors.title}</p>}
           </div>
 
           {/* Venue */}
@@ -83,8 +133,9 @@ export function CreateMatchForm() {
             <button
               onClick={() => setShowVenueModal(true)}
               className={cn(
-                "w-full h-12 px-4 rounded-xl bg-input border border-border text-left flex items-center justify-between transition-all",
+                "w-full h-12 px-4 rounded-xl bg-input border text-left flex items-center justify-between transition-all",
                 "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary",
+                errors.venue ? "border-destructive" : "border-border",
                 selectedVenue ? "text-foreground" : "text-muted-foreground"
               )}
             >
@@ -94,6 +145,7 @@ export function CreateMatchForm() {
               </div>
               <ChevronDown className="w-5 h-5 text-muted-foreground" />
             </button>
+            {errors.venue && <p className="text-xs text-destructive mt-1">{errors.venue}</p>}
           </div>
 
           {/* Date and Time */}
@@ -107,9 +159,13 @@ export function CreateMatchForm() {
                 <input
                   type="date"
                   value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full h-12 pl-12 pr-4 rounded-xl bg-input border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+                  onChange={(e) => { setDate(e.target.value); setErrors((p) => ({ ...p, date: "" })) }}
+                  className={cn(
+                    "w-full h-12 pl-12 pr-4 rounded-xl bg-input border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all",
+                    errors.date ? "border-destructive" : "border-border"
+                  )}
                 />
+                {errors.date && <p className="text-xs text-destructive mt-1">{errors.date}</p>}
               </div>
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
@@ -302,6 +358,7 @@ export function CreateMatchForm() {
                   onClick={() => {
                     setSelectedVenue(venue)
                     setShowVenueModal(false)
+                    setErrors((p) => ({ ...p, venue: "" }))
                   }}
                   className={cn(
                     "w-full p-4 rounded-xl text-left transition-all",

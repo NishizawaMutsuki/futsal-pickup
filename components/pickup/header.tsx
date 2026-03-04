@@ -5,13 +5,12 @@ import Link from "next/link"
 import { Bell, Palette, Check } from "lucide-react"
 import { useTheme, themes } from "./theme-provider"
 import { cn } from "@/lib/utils"
-import { NOTIFICATIONS } from "@/data/mock"
+import { useApp } from "@/contexts/app-context"
 
 export function Header() {
   const { theme, setTheme } = useTheme()
+  const { unreadCount } = useApp()
   const [showPicker, setShowPicker] = useState(false)
-
-  const unreadCount = NOTIFICATIONS.filter((n) => !n.read).length
 
   return (
     <header className="relative flex items-center justify-between px-5 pt-14 pb-3">

@@ -1,10 +1,14 @@
 "use client"
 
-import { ChevronRight, Calendar, MapPin, CheckCircle, Clock } from "lucide-react"
+import { useState } from "react"
+import Link from "next/link"
+import { ChevronRight, Calendar, MapPin, CheckCircle, Clock, X } from "lucide-react"
 import { BottomNav } from "./bottom-nav"
 import { StarRating } from "@/components/ui/star-rating"
 import { Avatar } from "@/components/ui/avatar"
-import { MY_PROFILE, MATCHES, PAST_MATCHES } from "@/data/mock"
+import { MATCHES, PAST_MATCHES } from "@/data/mock"
+import { useApp } from "@/contexts/app-context"
+import { cn } from "@/lib/utils"
 
 const upcomingMatches = MATCHES.slice(0, 2).map((m) => ({
   id: m.id,
@@ -14,7 +18,78 @@ const upcomingMatches = MATCHES.slice(0, 2).map((m) => ({
   venue: m.venue,
 }))
 
+function EditProfileModal({ name, position, onSave, onClose }: {
+  name: string
+  position: string
+  onSave: (name: string, position: string) => void
+  onClose: () => void
+}) {
+  const [editName, setEditName] = useState(name)
+  const [editPosition, setEditPosition] = useState(position)
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-[350px] bg-card rounded-2xl border border-border p-5 animate-fade-up">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-bold text-foreground">プロフィールを編集</h2>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
+          >
+            <X className="w-4 h-4 text-foreground" />
+          </button>
+        </div>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-bold text-foreground mb-2">名前</label>
+            <input
+              type="text"
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              className="w-full h-12 px-4 rounded-xl bg-input border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-foreground mb-2">ポジション</label>
+            <div className="flex bg-input rounded-xl p-1 border border-border">
+              {["GK", "DF", "MF", "FW"].map((pos) => (
+                <button
+                  key={pos}
+                  onClick={() => setEditPosition(pos)}
+                  className={cn(
+                    "flex-1 h-10 rounded-lg text-sm font-medium transition-all",
+                    editPosition === pos
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {pos}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button
+            onClick={() => onSave(editName, editPosition)}
+            className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            保存
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function ProfileScreen() {
+  const { profile, updateProfile } = useApp()
+  const [showEditModal, setShowEditModal] = useState(false)
+
+  const handleSaveProfile = (name: string, position: string) => {
+    updateProfile({ name, position })
+    setShowEditModal(false)
+  }
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Content */}
@@ -22,14 +97,17 @@ export function ProfileScreen() {
         {/* Profile Header */}
         <section className="px-4 pt-6 pb-6 animate-fade-up">
           <div className="flex flex-col items-center text-center">
-            <Avatar name={MY_PROFILE.name} className="w-20 h-20 text-2xl mb-3" />
-            <h1 className="text-xl font-bold text-foreground">{MY_PROFILE.name}</h1>
+            <Avatar name={profile.name} className="w-20 h-20 text-2xl mb-3" />
+            <h1 className="text-xl font-bold text-foreground">{profile.name}</h1>
             <div className="flex items-center gap-2 mt-2">
-              <StarRating rating={MY_PROFILE.rating} size="md" />
-              <span className="text-sm font-semibold text-foreground">{MY_PROFILE.rating}</span>
-              <span className="text-sm text-muted-foreground">({MY_PROFILE.reviews.length}件)</span>
+              <StarRating rating={profile.rating} size="md" />
+              <span className="text-sm font-semibold text-foreground">{profile.rating}</span>
+              <span className="text-sm text-muted-foreground">({profile.reviews.length}件)</span>
             </div>
-            <button className="mt-4 px-5 py-2 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-secondary transition-colors">
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="mt-4 px-5 py-2 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
+            >
               プロフィールを編集
             </button>
           </div>
@@ -39,15 +117,15 @@ export function ProfileScreen() {
         <section className="px-4 animate-fade-up" style={{ animationDelay: "80ms" }}>
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-card rounded-2xl border border-border p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">{MY_PROFILE.matchCount}回</p>
+              <p className="text-2xl font-bold text-foreground">{profile.matchCount}回</p>
               <p className="text-xs text-muted-foreground mt-1">参加数</p>
             </div>
             <div className="bg-card rounded-2xl border border-border p-4 text-center">
-              <p className="text-2xl font-bold text-foreground">{MY_PROFILE.hostCount}回</p>
+              <p className="text-2xl font-bold text-foreground">{profile.hostCount}回</p>
               <p className="text-xs text-muted-foreground mt-1">主催数</p>
             </div>
             <div className="bg-card rounded-2xl border border-border p-4 text-center">
-              <p className="text-2xl font-bold text-primary">{MY_PROFILE.cancelRate}%</p>
+              <p className="text-2xl font-bold text-primary">{profile.cancelRate}%</p>
               <p className="text-xs text-muted-foreground mt-1">ドタキャン率</p>
             </div>
           </div>
@@ -57,29 +135,27 @@ export function ProfileScreen() {
         <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "160ms" }}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-bold text-foreground">今後の予定</h2>
-            <button className="text-xs text-primary font-medium flex items-center gap-1">
-              すべて見る
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
           <div className="space-y-3">
             {upcomingMatches.map((match) => (
-              <div key={match.id} className="bg-card rounded-2xl border border-border p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-bold text-foreground truncate">{match.title}</h3>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                      <Calendar className="w-3.5 h-3.5 text-primary" />
-                      <span>{match.date} {match.time}</span>
+              <Link key={match.id} href={`/match/${match.id}`}>
+                <div className="bg-card rounded-2xl border border-border p-4 hover:bg-card/80 transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-bold text-foreground truncate">{match.title}</h3>
+                      <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                        <Calendar className="w-3.5 h-3.5 text-primary" />
+                        <span>{match.date} {match.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                        <MapPin className="w-3.5 h-3.5 text-primary" />
+                        <span className="truncate">{match.venue}</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                      <MapPin className="w-3.5 h-3.5 text-primary" />
-                      <span className="truncate">{match.venue}</span>
-                    </div>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -88,10 +164,6 @@ export function ProfileScreen() {
         <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "240ms" }}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-bold text-foreground">参加履歴</h2>
-            <button className="text-xs text-primary font-medium flex items-center gap-1">
-              すべて見る
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
           <div className="space-y-3">
             {PAST_MATCHES.map((match) => (
@@ -117,7 +189,6 @@ export function ProfileScreen() {
                       <span className="truncate">{match.venue}</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                 </div>
               </div>
             ))}
@@ -128,13 +199,9 @@ export function ProfileScreen() {
         <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "320ms" }}>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-bold text-foreground">レビュー</h2>
-            <button className="text-xs text-primary font-medium flex items-center gap-1">
-              すべて見る
-              <ChevronRight className="w-4 h-4" />
-            </button>
           </div>
           <div className="space-y-3">
-            {MY_PROFILE.reviews.map((review) => (
+            {profile.reviews.map((review) => (
               <div key={review.userId} className="bg-card rounded-2xl border border-border p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar name={review.userName} className="w-9 h-9 text-xs" />
@@ -153,7 +220,17 @@ export function ProfileScreen() {
       </main>
 
       {/* Bottom Nav */}
-      <BottomNav activeTab="profile" />
+      <BottomNav />
+
+      {/* Edit Profile Modal */}
+      {showEditModal && (
+        <EditProfileModal
+          name={profile.name}
+          position={profile.position}
+          onSave={handleSaveProfile}
+          onClose={() => setShowEditModal(false)}
+        />
+      )}
     </div>
   )
 }

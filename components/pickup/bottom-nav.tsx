@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Home, Search, Plus, Bell, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -8,13 +9,23 @@ type NavItem = { id: string; icon: typeof Home; label: string; href: string }
 
 const navItems: NavItem[] = [
   { id: "home", icon: Home, label: "ホーム", href: "/" },
-  { id: "search", icon: Search, label: "検索", href: "#" },
+  { id: "search", icon: Search, label: "検索", href: "/?search=1" },
   { id: "create", icon: Plus, label: "", href: "/create" },
   { id: "notifications", icon: Bell, label: "通知", href: "/notifications" },
   { id: "profile", icon: User, label: "マイページ", href: "/profile" },
 ]
 
-export function BottomNav({ activeTab = "home" }: { activeTab?: string }) {
+function getActiveTab(pathname: string): string {
+  if (pathname === "/create") return "create"
+  if (pathname === "/notifications") return "notifications"
+  if (pathname === "/profile") return "profile"
+  if (pathname.startsWith("/match/")) return "home"
+  return "home"
+}
+
+export function BottomNav() {
+  const pathname = usePathname()
+  const activeTab = getActiveTab(pathname)
   return (
     <nav
       className="sticky bottom-0 w-full z-50 pb-5 pt-2 px-5 pointer-events-none animate-slide-up-nav"

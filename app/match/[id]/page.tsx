@@ -3,10 +3,10 @@
 import { use } from "react"
 import { MatchDetail } from "@/components/pickup/match-detail"
 import { MobileShell } from "@/components/ui/mobile-shell"
-import { getMatchById } from "@/data/mock"
+import { useApp } from "@/contexts/app-context"
 
-export default function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+function MatchDetailContent({ id }: { id: string }) {
+  const { getMatchById } = useApp()
   const match = getMatchById(id)
 
   if (!match) {
@@ -24,4 +24,9 @@ export default function MatchDetailPage({ params }: { params: Promise<{ id: stri
       <MatchDetail match={match} />
     </MobileShell>
   )
+}
+
+export default function MatchDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  return <MatchDetailContent id={id} />
 }

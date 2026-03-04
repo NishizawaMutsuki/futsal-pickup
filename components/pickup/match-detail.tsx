@@ -1,16 +1,44 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight } from "lucide-react"
+import Link from "next/link"
+import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight, ExternalLink } from "lucide-react"
 import type { Match } from "@/data/types"
 import { SkillBadge } from "@/components/ui/skill-badge"
 import { StarRating } from "@/components/ui/star-rating"
 import { Avatar } from "@/components/ui/avatar"
 import { formatMatchDate } from "@/lib/format"
+import { useApp } from "@/contexts/app-context"
 
 export function MatchDetail({ match }: { match: Match }) {
   const router = useRouter()
+  const { joinMatch, joinedMatchIds } = useApp()
   const dateDisplay = formatMatchDate(match)
+
+  const isJoined = joinedMatchIds.has(match.id)
+  const isFull = match.currentPlayers >= match.maxPlayers
+
+  const handleJoin = () => {
+    if (isJoined || isFull) return
+    if (window.confirm(`「${match.title}」に参加しますか？`)) {
+      joinMatch(match.id)
+    }
+  }
+
+  const handleShare = async () => {
+    const url = window.location.href
+    const shareData = { title: match.title, text: `${match.title} - ${match.venue}`, url }
+    if (navigator.share) {
+      try { await navigator.share(shareData) } catch {}
+    } else {
+      await navigator.clipboard.writeText(url)
+      alert("URLをコピーしました")
+    }
+  }
+
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(match.venue)}`
+
+  const joinButtonLabel = isJoined ? "参加済み" : isFull ? "満員" : "参加する"
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -24,6 +52,7 @@ export function MatchDetail({ match }: { match: Match }) {
           <ArrowLeft className="w-5 h-5 text-foreground" />
         </button>
         <button
+          onClick={handleShare}
           className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
           aria-label="共有"
         >
@@ -60,15 +89,25 @@ export function MatchDetail({ match }: { match: Match }) {
                 <p className="text-sm font-semibold text-foreground">{match.venue}</p>
                 <p className="text-xs text-muted-foreground">{match.area}</p>
               </div>
-              <button className="flex items-center gap-1 text-xs text-primary font-medium">
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-primary font-medium"
+              >
                 地図
-                <ChevronRight className="w-4 h-4" />
-              </button>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
             </div>
             {/* Map placeholder */}
-            <div className="mt-3 h-24 rounded-xl bg-secondary flex items-center justify-center">
-              <span className="text-xs text-muted-foreground">地図を表示</span>
-            </div>
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 h-24 rounded-xl bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors cursor-pointer block"
+            >
+              <span className="text-xs text-muted-foreground">Google Mapsで開く</span>
+            </a>
           </div>
 
           {/* Fee */}
@@ -135,22 +174,24 @@ export function MatchDetail({ match }: { match: Match }) {
         {/* Organizer Card */}
         <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "160ms" }}>
           <h2 className="text-sm font-bold text-foreground mb-3">主催者</h2>
-          <div className="bg-card rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3">
-              <Avatar name={match.host.name} className="w-12 h-12 text-sm" />
-              <div className="flex-1">
-                <p className="text-sm font-bold text-foreground">{match.host.name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <StarRating rating={match.host.rating} />
-                  <span className="text-xs font-medium text-muted-foreground">{match.host.rating}</span>
+          <Link href="/profile" className="block">
+            <div className="bg-card rounded-2xl border border-border p-4 hover:bg-card/80 transition-colors">
+              <div className="flex items-center gap-3">
+                <Avatar name={match.host.name} className="w-12 h-12 text-sm" />
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-foreground">{match.host.name}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <StarRating rating={match.host.rating} />
+                    <span className="text-xs font-medium text-muted-foreground">{match.host.rating}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {match.host.matchCount}回開催
+                  </p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {match.host.matchCount}回開催
-                </p>
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
             </div>
-          </div>
+          </Link>
         </section>
 
         {/* Description */}
@@ -168,10 +209,6 @@ export function MatchDetail({ match }: { match: Match }) {
           <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "320ms" }}>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-sm font-bold text-foreground">レビュー</h2>
-              <button className="text-xs text-primary font-medium flex items-center gap-1">
-                すべて見る
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
             <div className="space-y-3">
               {match.reviews.map((review) => (
@@ -195,8 +232,12 @@ export function MatchDetail({ match }: { match: Match }) {
 
       {/* Bottom sticky bar */}
       <div className="sticky bottom-0 w-full z-50 p-4 bg-background/80 backdrop-blur-xl border-t border-border">
-        <button className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base shadow-[0_4px_24px_var(--glow,theme(--color-primary)/0.35)] hover:shadow-[0_6px_32px_var(--glow,theme(--color-primary)/0.5)] transition-all hover:scale-[1.02] active:scale-[0.98]">
-          参加する
+        <button
+          onClick={handleJoin}
+          disabled={isJoined || isFull}
+          className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base shadow-[0_4px_24px_var(--glow,theme(--color-primary)/0.35)] hover:shadow-[0_6px_32px_var(--glow,theme(--color-primary)/0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+        >
+          {joinButtonLabel}
         </button>
       </div>
     </div>

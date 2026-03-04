@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import { Header } from "@/components/pickup/header"
 import { SearchBar } from "@/components/pickup/search-bar"
 import { AreaChips } from "@/components/pickup/area-chips"
@@ -9,14 +10,16 @@ import { BottomNav } from "@/components/pickup/bottom-nav"
 import { MobileShell } from "@/components/ui/mobile-shell"
 import { useMatchFilters } from "@/hooks/use-match-filters"
 
-export default function HomePage() {
-  const { area, skillLevel, filteredMatches, matchCount, setArea, setSkillLevel } = useMatchFilters()
+function HomeContent() {
+  const { area, skillLevel, searchQuery, filteredMatches, matchCount, setArea, setSkillLevel, setSearchQuery } = useMatchFilters()
 
   return (
     <MobileShell>
       <div className="flex-1 pb-4">
         <Header />
-        <SearchBar />
+        <Suspense>
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        </Suspense>
         <AreaChips selected={area} onSelect={setArea} />
         <SkillTabs active={skillLevel} onSelect={setSkillLevel} />
         <MatchList matches={filteredMatches} count={matchCount} />
@@ -24,4 +27,8 @@ export default function HomePage() {
       <BottomNav />
     </MobileShell>
   )
+}
+
+export default function HomePage() {
+  return <HomeContent />
 }
