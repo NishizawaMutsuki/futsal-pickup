@@ -15,13 +15,19 @@ import {
   Banknote,
   CheckCircle,
 } from "lucide-react-native";
+import { useColors } from "../contexts/ThemeContext";
 import StickyButton from "../components/StickyButton";
 import FocusInput from "../components/FocusInput";
 
-function FormField({ label, children }) {
+function FormField({ label, colors, children }) {
   return (
     <View className="gap-2">
-      <Text className="text-sm font-bold text-gray-900">{label}</Text>
+      <Text
+        className="text-sm font-bold"
+        style={{ color: colors.foreground }}
+      >
+        {label}
+      </Text>
       {children}
     </View>
   );
@@ -29,6 +35,7 @@ function FormField({ label, children }) {
 
 export default function CreateMatchScreen() {
   const insets = useSafeAreaInsets();
+  const colors = useColors();
   const [title, setTitle] = useState("");
   const [venue, setVenue] = useState("");
   const [date, setDate] = useState("");
@@ -46,25 +53,43 @@ export default function CreateMatchScreen() {
   if (submitted) {
     return (
       <View
-        className="flex-1 bg-white items-center justify-center px-8"
-        style={{ paddingTop: insets.top }}
+        className="flex-1 items-center justify-center px-8"
+        style={{
+          backgroundColor: colors.background,
+          paddingTop: insets.top,
+        }}
       >
         <View className="items-center gap-4">
-          <View className="w-20 h-20 bg-emerald-100 rounded-full items-center justify-center">
-            <CheckCircle size={40} color="#059669" />
+          <View
+            className="w-20 h-20 rounded-full items-center justify-center"
+            style={{ backgroundColor: colors.primaryBg }}
+          >
+            <CheckCircle size={40} color={colors.primary} />
           </View>
-          <Text className="text-xl font-bold text-gray-900">
+          <Text
+            className="text-xl font-bold"
+            style={{ color: colors.foreground }}
+          >
             募集を公開しました！
           </Text>
-          <Text className="text-gray-500 text-center">
+          <Text
+            className="text-center"
+            style={{ color: colors.mutedForeground }}
+          >
             参加者が集まるのを待ちましょう。{"\n"}
             通知でお知らせします。
           </Text>
           <TouchableOpacity
             onPress={() => router.back()}
-            className="bg-emerald-600 px-8 py-3 rounded-xl mt-4"
+            className="px-8 py-3 rounded-xl mt-4"
+            style={{ backgroundColor: colors.primary }}
           >
-            <Text className="text-white font-semibold">閉じる</Text>
+            <Text
+              className="font-semibold"
+              style={{ color: colors.primaryForeground }}
+            >
+              閉じる
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -72,18 +97,29 @@ export default function CreateMatchScreen() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
       {/* Header */}
       <View
-        className="flex-row items-center justify-between px-4 py-3 bg-white/90 border-b border-gray-200"
-        style={{ paddingTop: insets.top + 4 }}
+        className="flex-row items-center justify-between px-4 py-3"
+        style={{
+          paddingTop: insets.top + 4,
+          backgroundColor: colors.background + "e6",
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+        }}
       >
-        <Text className="text-lg font-bold text-gray-900">マッチを作成</Text>
+        <Text
+          className="text-lg font-bold"
+          style={{ color: colors.foreground }}
+        >
+          マッチを作成
+        </Text>
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-10 h-10 rounded-xl bg-gray-100 items-center justify-center"
+          className="w-10 h-10 rounded-xl items-center justify-center"
+          style={{ backgroundColor: colors.secondary }}
         >
-          <X size={20} color="#111827" />
+          <X size={20} color={colors.foreground} />
         </TouchableOpacity>
       </View>
 
@@ -91,49 +127,44 @@ export default function CreateMatchScreen() {
         className="flex-1 px-4"
         contentContainerStyle={{ gap: 20, paddingVertical: 20 }}
       >
-        <FormField label="タイトル">
+        <FormField label="タイトル" colors={colors}>
           <FocusInput
             placeholder="渋谷エンジョイフットサル"
-            placeholderTextColor="#9ca3af"
             value={title}
             onChangeText={setTitle}
           />
         </FormField>
 
-        <FormField label="会場">
+        <FormField label="会場" colors={colors}>
           <FocusInput
             placeholder="アディダス フットサルパーク 渋谷"
-            placeholderTextColor="#9ca3af"
             value={venue}
             onChangeText={setVenue}
           />
         </FormField>
 
-        <FormField label="日付">
+        <FormField label="日付" colors={colors}>
           <FocusInput
             placeholder="2026-03-15"
-            placeholderTextColor="#9ca3af"
             value={date}
             onChangeText={setDate}
           />
         </FormField>
 
         {/* Time */}
-        <FormField label="時間">
+        <FormField label="時間" colors={colors}>
           <View className="flex-row items-center gap-3">
             <View className="flex-1">
               <FocusInput
                 placeholder="19:00"
-                placeholderTextColor="#9ca3af"
                 value={startTime}
                 onChangeText={setStartTime}
               />
             </View>
-            <Text className="text-gray-400 font-medium">-</Text>
+            <Text style={{ color: colors.mutedForeground }} className="font-medium">-</Text>
             <View className="flex-1">
               <FocusInput
                 placeholder="21:00"
-                placeholderTextColor="#9ca3af"
                 value={endTime}
                 onChangeText={setEndTime}
               />
@@ -142,8 +173,15 @@ export default function CreateMatchScreen() {
         </FormField>
 
         {/* Skill level - segmented control */}
-        <FormField label="レベル">
-          <View className="flex-row bg-gray-100 rounded-xl p-1 border border-gray-200">
+        <FormField label="レベル" colors={colors}>
+          <View
+            className="flex-row rounded-xl p-1"
+            style={{
+              backgroundColor: colors.secondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
             {[
               { id: "beginner", label: "初心者OK" },
               { id: "intermediate", label: "経験者" },
@@ -152,18 +190,21 @@ export default function CreateMatchScreen() {
               <TouchableOpacity
                 key={opt.id}
                 onPress={() => setLevel(opt.id)}
-                className={
+                className="flex-1 h-10 rounded-lg items-center justify-center"
+                style={
                   level === opt.id
-                    ? "flex-1 h-10 rounded-lg bg-emerald-600 items-center justify-center"
-                    : "flex-1 h-10 rounded-lg items-center justify-center"
+                    ? { backgroundColor: colors.primary }
+                    : undefined
                 }
               >
                 <Text
-                  className={
-                    level === opt.id
-                      ? "text-sm font-medium text-white"
-                      : "text-sm font-medium text-gray-500"
-                  }
+                  className="text-sm font-medium"
+                  style={{
+                    color:
+                      level === opt.id
+                        ? colors.primaryForeground
+                        : colors.mutedForeground,
+                  }}
                 >
                   {opt.label}
                 </Text>
@@ -173,40 +214,64 @@ export default function CreateMatchScreen() {
         </FormField>
 
         {/* Capacity */}
-        <FormField label="定員">
-          <View className="flex-row items-center justify-between h-12 px-4 rounded-xl bg-gray-100 border border-gray-200">
+        <FormField label="定員" colors={colors}>
+          <View
+            className="flex-row items-center justify-between h-12 px-4 rounded-xl"
+            style={{
+              backgroundColor: colors.secondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
             <View className="flex-row items-center gap-3">
-              <Users size={20} color="#059669" />
-              <Text className="text-gray-900 font-medium">
+              <Users size={20} color={colors.primary} />
+              <Text
+                className="font-medium"
+                style={{ color: colors.foreground }}
+              >
                 {maxPlayers}人
               </Text>
             </View>
             <View className="flex-row items-center gap-2">
               <TouchableOpacity
                 onPress={() => setMaxPlayers(Math.max(4, maxPlayers - 1))}
-                className="w-8 h-8 rounded-lg bg-white items-center justify-center"
+                className="w-8 h-8 rounded-lg items-center justify-center"
+                style={{ backgroundColor: colors.card }}
               >
-                <Minus size={16} color="#374151" />
+                <Minus size={16} color={colors.foreground} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setMaxPlayers(Math.min(20, maxPlayers + 1))}
-                className="w-8 h-8 rounded-lg bg-white items-center justify-center"
+                className="w-8 h-8 rounded-lg items-center justify-center"
+                style={{ backgroundColor: colors.card }}
               >
-                <Plus size={16} color="#374151" />
+                <Plus size={16} color={colors.foreground} />
               </TouchableOpacity>
             </View>
           </View>
         </FormField>
 
         {/* Fee */}
-        <FormField label="参加費">
-          <View className="flex-row items-center bg-gray-100 border border-gray-200 rounded-xl px-4 h-12">
-            <Banknote size={20} color="#059669" />
-            <Text className="text-gray-900 font-medium ml-2">¥</Text>
+        <FormField label="参加費" colors={colors}>
+          <View
+            className="flex-row items-center rounded-xl px-4 h-12"
+            style={{
+              backgroundColor: colors.secondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <Banknote size={20} color={colors.primary} />
+            <Text
+              className="font-medium ml-2"
+              style={{ color: colors.foreground }}
+            >
+              ¥
+            </Text>
             <FocusInput
-              className="flex-1 ml-1 bg-transparent border-0"
+              className="flex-1 ml-1"
+              style={{ backgroundColor: "transparent", borderWidth: 0 }}
               placeholder="1500"
-              placeholderTextColor="#9ca3af"
               keyboardType="number-pad"
               value={price}
               onChangeText={setPrice}
@@ -215,10 +280,9 @@ export default function CreateMatchScreen() {
         </FormField>
 
         {/* Rules / description */}
-        <FormField label="ルール・備考">
+        <FormField label="ルール・備考" colors={colors}>
           <FocusInput
             placeholder="ビブス持参不要、初心者歓迎！"
-            placeholderTextColor="#9ca3af"
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -229,46 +293,60 @@ export default function CreateMatchScreen() {
         </FormField>
 
         {/* Approval method - segmented control */}
-        <FormField label="承認方法">
-          <View className="flex-row bg-gray-100 rounded-xl p-1 border border-gray-200">
+        <FormField label="承認方法" colors={colors}>
+          <View
+            className="flex-row rounded-xl p-1"
+            style={{
+              backgroundColor: colors.secondary,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
             <TouchableOpacity
               onPress={() => setAutoApprove(true)}
-              className={
+              className="flex-1 h-10 rounded-lg items-center justify-center"
+              style={
                 autoApprove
-                  ? "flex-1 h-10 rounded-lg bg-emerald-600 items-center justify-center"
-                  : "flex-1 h-10 rounded-lg items-center justify-center"
+                  ? { backgroundColor: colors.primary }
+                  : undefined
               }
             >
               <Text
-                className={
-                  autoApprove
-                    ? "text-sm font-medium text-white"
-                    : "text-sm font-medium text-gray-500"
-                }
+                className="text-sm font-medium"
+                style={{
+                  color: autoApprove
+                    ? colors.primaryForeground
+                    : colors.mutedForeground,
+                }}
               >
                 自動承認
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setAutoApprove(false)}
-              className={
+              className="flex-1 h-10 rounded-lg items-center justify-center"
+              style={
                 !autoApprove
-                  ? "flex-1 h-10 rounded-lg bg-emerald-600 items-center justify-center"
-                  : "flex-1 h-10 rounded-lg items-center justify-center"
+                  ? { backgroundColor: colors.primary }
+                  : undefined
               }
             >
               <Text
-                className={
-                  !autoApprove
-                    ? "text-sm font-medium text-white"
-                    : "text-sm font-medium text-gray-500"
-                }
+                className="text-sm font-medium"
+                style={{
+                  color: !autoApprove
+                    ? colors.primaryForeground
+                    : colors.mutedForeground,
+                }}
               >
                 手動承認
               </Text>
             </TouchableOpacity>
           </View>
-          <Text className="text-xs text-gray-500 mt-1">
+          <Text
+            className="text-xs mt-1"
+            style={{ color: colors.mutedForeground }}
+          >
             {autoApprove
               ? "参加申請があると自動的に承認されます"
               : "参加申請を確認してから承認します"}

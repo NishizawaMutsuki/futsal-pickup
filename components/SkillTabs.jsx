@@ -1,32 +1,43 @@
 import { View, Text, TouchableOpacity } from "react-native";
+import { useColors } from "../contexts/ThemeContext";
 import { LEVELS } from "../data/mock";
 
 export default function SkillTabs({ selected, onSelect }) {
+  const colors = useColors();
+
   return (
     <View className="px-4 pt-2 pb-1">
-      <View className="flex-row bg-gray-100 rounded-xl p-1 border border-gray-200">
-        {LEVELS.map((level) => (
-          <TouchableOpacity
-            key={level.key}
-            onPress={() => onSelect(level.key)}
-            className={
-              selected === level.key
-                ? "flex-1 py-2.5 rounded-lg bg-emerald-600 items-center"
-                : "flex-1 py-2.5 rounded-lg items-center"
-            }
-            activeOpacity={0.7}
-          >
-            <Text
-              className={
-                selected === level.key
-                  ? "text-xs font-bold text-white"
-                  : "text-xs font-bold text-gray-500"
-              }
+      <View
+        className="flex-row rounded-xl p-1"
+        style={{
+          backgroundColor: colors.secondary,
+          borderWidth: 1,
+          borderColor: colors.border,
+        }}
+      >
+        {LEVELS.map((level) => {
+          const isActive = selected === level.key;
+          return (
+            <TouchableOpacity
+              key={level.key}
+              onPress={() => onSelect(level.key)}
+              className="flex-1 py-2.5 rounded-lg items-center"
+              style={isActive ? { backgroundColor: colors.primary } : undefined}
+              activeOpacity={0.7}
             >
-              {level.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                className="text-xs font-bold"
+                style={{
+                  color: isActive
+                    ? colors.primaryForeground
+                    : colors.mutedForeground,
+                }}
+              >
+                {level.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );

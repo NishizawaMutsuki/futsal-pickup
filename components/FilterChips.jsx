@@ -1,9 +1,12 @@
-import { View, ScrollView, Text, TouchableOpacity } from "react-native";
+import { ScrollView, Text, TouchableOpacity } from "react-native";
+import { useColors } from "../contexts/ThemeContext";
 import { AREAS } from "../data/mock";
 
 const ALL_AREAS = ["すべて", ...AREAS];
 
 export default function FilterChips({ selected, onSelect }) {
+  const colors = useColors();
+
   return (
     <ScrollView
       horizontal
@@ -20,19 +23,21 @@ export default function FilterChips({ selected, onSelect }) {
             onPress={() =>
               onSelect(area === "すべて" ? null : area === selected ? null : area)
             }
-            className={
-              isSelected
-                ? "px-4 py-2 rounded-xl bg-emerald-600 border border-emerald-600"
-                : "px-4 py-2 rounded-xl bg-gray-100 border border-gray-200"
-            }
+            className="px-4 py-2 rounded-xl"
+            style={{
+              backgroundColor: isSelected ? colors.primary : colors.secondary,
+              borderWidth: 1,
+              borderColor: isSelected ? colors.primary : colors.border,
+            }}
             activeOpacity={0.7}
           >
             <Text
-              className={
-                isSelected
-                  ? "text-xs font-semibold text-white"
-                  : "text-xs font-semibold text-gray-500"
-              }
+              className="text-xs font-semibold"
+              style={{
+                color: isSelected
+                  ? colors.primaryForeground
+                  : colors.mutedForeground,
+              }}
             >
               {area}
             </Text>

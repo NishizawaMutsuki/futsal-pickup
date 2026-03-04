@@ -1,28 +1,42 @@
 import { Tabs, router } from "expo-router";
 import { TouchableOpacity, View } from "react-native";
 import { Home, Plus, Bell, User } from "lucide-react-native";
+import { useColors } from "../../contexts/ThemeContext";
 
 function CreateTabButton(props) {
+  const colors = useColors();
   return (
     <TouchableOpacity
       {...props}
       onPress={() => router.push("/create")}
       className="flex-1 items-center justify-center"
     >
-      <View className="w-12 h-12 bg-emerald-600 rounded-2xl items-center justify-center shadow-lg">
-        <Plus color="white" size={24} strokeWidth={2.5} />
+      <View
+        className="w-12 h-12 rounded-2xl items-center justify-center"
+        style={{
+          backgroundColor: colors.primary,
+          shadowColor: colors.primaryGlow,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 1,
+          shadowRadius: 24,
+          elevation: 8,
+        }}
+      >
+        <Plus color={colors.primaryForeground} size={24} strokeWidth={2.5} />
       </View>
     </TouchableOpacity>
   );
 }
 
 export default function TabLayout() {
+  const colors = useColors();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#059669",
-        tabBarInactiveTintColor: "#9ca3af",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.navInactive,
         tabBarStyle: {
           position: "absolute",
           bottom: 16,
@@ -30,14 +44,14 @@ export default function TabLayout() {
           right: 16,
           height: 68,
           borderRadius: 22,
-          backgroundColor: "rgba(255,255,255,0.95)",
+          backgroundColor: colors.navBg,
           borderWidth: 1,
-          borderColor: "rgba(229,231,235,0.6)",
+          borderColor: colors.navBorder,
           borderTopWidth: 1,
-          borderTopColor: "rgba(229,231,235,0.6)",
+          borderTopColor: colors.navBorder,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: 0.12,
+          shadowOpacity: 0.3,
           shadowRadius: 20,
           elevation: 16,
           paddingBottom: 0,

@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { TextInput } from "react-native";
+import { useColors } from "../contexts/ThemeContext";
 
-export default function FocusInput({ className, ...props }) {
+export default function FocusInput({ style: propStyle, ...props }) {
+  const colors = useColors();
   const [focused, setFocused] = useState(false);
-
-  const baseClass = focused
-    ? "bg-white border-2 border-emerald-500 rounded-xl px-4 py-3 text-base text-gray-900"
-    : "bg-gray-100 border border-gray-200 rounded-xl px-4 py-3 text-base text-gray-900";
 
   return (
     <TextInput
-      className={`${baseClass} ${className || ""}`}
+      className="rounded-xl px-4 py-3 text-base"
+      style={[
+        {
+          backgroundColor: focused ? colors.card : colors.input,
+          borderWidth: focused ? 2 : 1,
+          borderColor: focused ? colors.primary + "80" : colors.border,
+          color: colors.foreground,
+        },
+        propStyle,
+      ]}
+      placeholderTextColor={colors.mutedForeground}
       onFocus={() => setFocused(true)}
       onBlur={() => setFocused(false)}
       {...props}

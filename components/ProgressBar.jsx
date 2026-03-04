@@ -1,20 +1,31 @@
 import { View } from "react-native";
+import { useColors } from "../contexts/ThemeContext";
 
 export default function ProgressBar({ current, max }) {
+  const colors = useColors();
   const pct = Math.max(Math.min((current / max) * 100, 100), 4);
   const spotsLeft = max - current;
-  const isAlmostFull = spotsLeft <= 2;
   const isFull = spotsLeft <= 0;
+  const isAlmostFull = spotsLeft <= 2;
 
-  const barClass = isFull
-    ? "h-full bg-red-500 rounded-full"
+  const barColor = isFull
+    ? colors.destructive
     : isAlmostFull
-      ? "h-full bg-emerald-500 rounded-full"
-      : "h-full bg-emerald-400 rounded-full";
+      ? colors.primary
+      : colors.primary + "99";
 
   return (
-    <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
-      <View className={barClass} style={{ width: `${pct}%` }} />
+    <View
+      className="h-2 rounded-full overflow-hidden"
+      style={{ backgroundColor: colors.secondary }}
+    >
+      <View
+        className="h-full rounded-full"
+        style={{
+          width: `${pct}%`,
+          backgroundColor: barColor,
+        }}
+      />
     </View>
   );
 }
