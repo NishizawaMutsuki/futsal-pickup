@@ -4,7 +4,7 @@ import StarRating from "./StarRating";
 
 export default function OrganizerCard({ host }) {
   return (
-    <View className="bg-white rounded-2xl p-4 border border-gray-100">
+    <View className="bg-white rounded-2xl p-5 shadow-md">
       <Text className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
         主催者
       </Text>

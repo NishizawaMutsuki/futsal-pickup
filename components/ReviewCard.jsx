@@ -3,7 +3,7 @@ import StarRating from "./StarRating";
 
 export default function ReviewCard({ review }) {
   return (
-    <View className="bg-white rounded-2xl p-4 border border-gray-100">
+    <View className="bg-white rounded-2xl p-4 shadow-sm">
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center gap-2">
           <View className="w-8 h-8 bg-gray-100 rounded-full items-center justify-center">

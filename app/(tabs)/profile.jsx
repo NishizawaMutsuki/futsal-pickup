@@ -22,7 +22,7 @@ export default function ProfileScreen() {
               <Text className="text-4xl">{MY_PROFILE.avatar}</Text>
             </View>
             <View className="flex-row items-center gap-1.5">
-              <Text className="text-white text-xl font-bold">
+              <Text className="text-white text-2xl font-bold">
                 {MY_PROFILE.name}
               </Text>
               {MY_PROFILE.verified && (
@@ -56,7 +56,7 @@ export default function ProfileScreen() {
           </View>
 
           {/* QR Check-in */}
-          <TouchableOpacity className="bg-white rounded-2xl p-4 flex-row items-center gap-3 border border-gray-100 shadow-sm">
+          <TouchableOpacity className="bg-white rounded-2xl p-4 flex-row items-center gap-3 shadow-md">
             <View className="w-12 h-12 bg-emerald-100 rounded-xl items-center justify-center">
               <QrCode size={24} color="#059669" />
             </View>
@@ -87,7 +87,7 @@ export default function ProfileScreen() {
                         params: { id: match.id },
                       })
                     }
-                    className="bg-white rounded-2xl p-4 flex-row items-center border border-gray-100"
+                    className="bg-white rounded-2xl p-4 flex-row items-center shadow-sm"
                   >
                     <View className="flex-1">
                       <Text className="font-semibold text-gray-900">

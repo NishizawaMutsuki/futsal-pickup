@@ -28,6 +28,7 @@ export default function NotificationsScreen() {
         ListHeaderComponent={() => (
           <GradientHeader
             title="通知"
+            curveWhite
             subtitle={
               unreadCount > 0 ? `${unreadCount}件の未読` : "すべて既読です"
             }
@@ -38,8 +39,16 @@ export default function NotificationsScreen() {
         )}
         ListEmptyComponent={() => (
           <View className="items-center py-16">
-            <Text className="text-4xl mb-3">🔔</Text>
-            <Text className="text-gray-400">通知はありません</Text>
+            <View className="w-24 h-24 bg-emerald-50 rounded-full items-center justify-center mb-4">
+              <Text className="text-4xl">🔔</Text>
+            </View>
+            <Text className="text-lg font-bold text-gray-900 mb-2">
+              通知はありません
+            </Text>
+            <Text className="text-gray-400 text-center">
+              マッチの参加や新着情報があると{"\n"}
+              こちらに通知が届きます。
+            </Text>
           </View>
         )}
       />

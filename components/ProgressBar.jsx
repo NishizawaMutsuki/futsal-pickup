@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 
 export default function ProgressBar({ current, max }) {
-  const pct = Math.min((current / max) * 100, 100);
+  const pct = Math.max(Math.min((current / max) * 100, 100), 4);
   const spotsLeft = max - current;
   const isAlmostFull = spotsLeft <= 2;
 
@@ -21,12 +21,12 @@ export default function ProgressBar({ current, max }) {
           {spotsLeft > 0 ? `残り${spotsLeft}枠` : "満員"}
         </Text>
       </View>
-      <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
+      <View className="h-3 bg-gray-200 rounded-full overflow-hidden">
         <View
           className={
             isAlmostFull
-              ? "h-full bg-red-500 rounded-full"
-              : "h-full bg-emerald-500 rounded-full"
+              ? "h-full bg-red-400 rounded-full"
+              : "h-full bg-emerald-400 rounded-full"
           }
           style={{ width: `${pct}%` }}
         />

@@ -9,8 +9,11 @@ function CreateTabButton(props) {
       onPress={() => router.push("/create")}
       className="items-center justify-center -mt-5"
     >
-      <View className="w-14 h-14 bg-emerald-600 rounded-full items-center justify-center shadow-lg">
-        <Plus color="white" size={28} />
+      <View className="w-20 h-20 items-center justify-center">
+        <View className="absolute w-20 h-20 bg-emerald-200 rounded-full opacity-50" />
+        <View className="w-16 h-16 bg-emerald-600 rounded-full items-center justify-center shadow-xl">
+          <Plus color="white" size={28} />
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -24,11 +27,15 @@ export default function TabLayout() {
         tabBarActiveTintColor: "#059669",
         tabBarInactiveTintColor: "#9ca3af",
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: "#f3f4f6",
+          borderTopWidth: 0,
           height: 85,
           paddingBottom: 25,
           paddingTop: 8,
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -3 },
+          shadowOpacity: 0.06,
+          shadowRadius: 6,
+          elevation: 8,
         },
       }}
     >

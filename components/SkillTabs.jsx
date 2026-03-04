@@ -1,13 +1,15 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { LEVELS } from "../data/mock";
+import PressableScale from "./PressableScale";
 
 export default function SkillTabs({ selected, onSelect }) {
   return (
     <View className="flex-row gap-2 px-4 py-3">
       {LEVELS.map((level) => (
-        <TouchableOpacity
+        <PressableScale
           key={level.key}
           onPress={() => onSelect(level.key)}
+          scale={0.95}
           className={
             selected === level.key
               ? "px-4 py-2 rounded-full bg-emerald-600"
@@ -23,7 +25,7 @@ export default function SkillTabs({ selected, onSelect }) {
           >
             {level.label}
           </Text>
-        </TouchableOpacity>
+        </PressableScale>
       ))}
     </View>
   );

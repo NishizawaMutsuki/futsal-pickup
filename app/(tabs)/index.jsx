@@ -26,7 +26,7 @@ export default function HomeScreen() {
   const renderHeader = useCallback(
     () => (
       <View>
-        <GradientHeader title="PickUp" subtitle="東京のフットサル仲間を見つけよう">
+        <GradientHeader title="PickUp" subtitle="東京のフットサル仲間を見つけよう" large>
           <View className="flex-row items-center bg-white/20 rounded-xl px-3 py-2.5 mt-3">
             <Search size={18} color="white" />
             <TextInput
@@ -48,9 +48,15 @@ export default function HomeScreen() {
   const renderEmpty = useCallback(
     () => (
       <View className="items-center py-16 px-4">
-        <Text className="text-4xl mb-3">🔍</Text>
+        <View className="w-24 h-24 bg-gray-100 rounded-full items-center justify-center mb-4">
+          <Text className="text-4xl">🔍</Text>
+        </View>
+        <Text className="text-lg font-bold text-gray-900 mb-2">
+          マッチが見つかりません
+        </Text>
         <Text className="text-gray-400 text-center">
-          条件に合うマッチが見つかりません
+          条件に合うマッチが見つかりませんでした。{"\n"}
+          フィルターを変更して再度お試しください。
         </Text>
       </View>
     ),

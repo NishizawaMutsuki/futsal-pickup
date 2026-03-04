@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   ScrollView,
   TouchableOpacity,
   Switch,
+  Animated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
 import { X, Minus, Plus, CheckCircle } from "lucide-react-native";
 import StickyButton from "../components/StickyButton";
+import FocusInput from "../components/FocusInput";
 
 function FormField({ label, children }) {
   return (
     <View className="gap-1.5">
-      <Text className="text-sm font-semibold text-gray-700">{label}</Text>
+      <Text className="text-sm font-semibold text-gray-900">{label}</Text>
       {children}
     </View>
   );
@@ -58,6 +59,27 @@ export default function CreateMatchScreen() {
   const [autoApprove, setAutoApprove] = useState(true);
   const [submitted, setSubmitted] = useState(false);
 
+  const scaleAnim = useRef(new Animated.Value(0.5)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (submitted) {
+      Animated.parallel([
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          useNativeDriver: true,
+          speed: 12,
+          bounciness: 8,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [submitted]);
+
   const canSubmit = title && venue && date && startTime && endTime && price;
 
   if (submitted) {
@@ -66,7 +88,13 @@ export default function CreateMatchScreen() {
         className="flex-1 bg-white items-center justify-center px-8"
         style={{ paddingTop: insets.top }}
       >
-        <View className="items-center gap-4">
+        <Animated.View
+          className="items-center gap-4"
+          style={{
+            opacity: opacityAnim,
+            transform: [{ scale: scaleAnim }],
+          }}
+        >
           <View className="w-20 h-20 bg-emerald-100 rounded-full items-center justify-center">
             <CheckCircle size={40} color="#059669" />
           </View>
@@ -83,7 +111,7 @@ export default function CreateMatchScreen() {
           >
             <Text className="text-white font-semibold">閉じる</Text>
           </TouchableOpacity>
-        </View>
+        </Animated.View>
       </View>
     );
   }
@@ -95,14 +123,13 @@ export default function CreateMatchScreen() {
         <TouchableOpacity onPress={() => router.back()}>
           <X size={24} color="#374151" />
         </TouchableOpacity>
-        <Text className="text-lg font-bold text-gray-900">マッチを作成</Text>
+        <Text className="text-xl font-bold text-gray-900">マッチを作成</Text>
         <View className="w-6" />
       </View>
 
       <ScrollView className="flex-1 px-4" contentContainerStyle={{ gap: 20, paddingVertical: 20 }}>
         <FormField label="タイトル">
-          <TextInput
-            className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
+          <FocusInput
             placeholder="例: 渋谷エンジョイフットサル"
             placeholderTextColor="#9ca3af"
             value={title}
@@ -111,8 +138,7 @@ export default function CreateMatchScreen() {
         </FormField>
 
         <FormField label="会場">
-          <TextInput
-            className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
+          <FocusInput
             placeholder="例: アディダス フットサルパーク 渋谷"
             placeholderTextColor="#9ca3af"
             value={venue}
@@ -121,8 +147,7 @@ export default function CreateMatchScreen() {
         </FormField>
 
         <FormField label="日付">
-          <TextInput
-            className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
+          <FocusInput
             placeholder="例: 2026-03-15"
             placeholderTextColor="#9ca3af"
             value={date}
@@ -133,8 +158,7 @@ export default function CreateMatchScreen() {
         <View className="flex-row gap-3">
           <View className="flex-1">
             <FormField label="開始時間">
-              <TextInput
-                className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
+              <FocusInput
                 placeholder="19:00"
                 placeholderTextColor="#9ca3af"
                 value={startTime}
@@ -144,8 +168,7 @@ export default function CreateMatchScreen() {
           </View>
           <View className="flex-1">
             <FormField label="終了時間">
-              <TextInput
-                className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
+              <FocusInput
                 placeholder="21:00"
                 placeholderTextColor="#9ca3af"
                 value={endTime}
@@ -200,10 +223,10 @@ export default function CreateMatchScreen() {
         </FormField>
 
         <FormField label="参加費">
-          <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-3">
+          <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-3 border-2 border-transparent">
             <Text className="text-base text-gray-400 mr-1">¥</Text>
-            <TextInput
-              className="flex-1 text-base text-gray-900"
+            <FocusInput
+              className="flex-1"
               placeholder="1800"
               placeholderTextColor="#9ca3af"
               keyboardType="number-pad"
@@ -214,8 +237,7 @@ export default function CreateMatchScreen() {
         </FormField>
 
         <FormField label="説明">
-          <TextInput
-            className="bg-gray-50 rounded-xl px-4 py-3 text-base text-gray-900"
+          <FocusInput
             placeholder="マッチの雰囲気やルールを書きましょう"
             placeholderTextColor="#9ca3af"
             multiline
@@ -229,7 +251,7 @@ export default function CreateMatchScreen() {
 
         <View className="flex-row items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
           <View>
-            <Text className="text-sm font-semibold text-gray-700">
+            <Text className="text-sm font-semibold text-gray-900">
               自動承認
             </Text>
             <Text className="text-xs text-gray-400 mt-0.5">

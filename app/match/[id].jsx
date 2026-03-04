@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { View, Text, ScrollView } from "react-native";
+import { useState, useRef, useEffect } from "react";
+import { View, Text, ScrollView, Animated } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import {
   Calendar,
@@ -19,10 +19,12 @@ import { getMatchById } from "../../data/mock";
 
 function InfoItem({ icon, label, value }) {
   return (
-    <View className="flex-1 bg-white rounded-2xl p-3 items-center gap-1 border border-gray-100">
-      {icon}
+    <View className="flex-1 bg-white rounded-2xl p-3 items-center gap-1.5 shadow-sm">
+      <View className="w-9 h-9 bg-emerald-50 rounded-full items-center justify-center">
+        {icon}
+      </View>
       <Text className="text-xs text-gray-400">{label}</Text>
-      <Text className="text-sm font-semibold text-gray-900">{value}</Text>
+      <Text className="text-base font-bold text-gray-900">{value}</Text>
     </View>
   );
 }
@@ -31,11 +33,40 @@ export default function MatchDetailScreen() {
   const { id } = useLocalSearchParams();
   const match = getMatchById(id);
   const [joined, setJoined] = useState(false);
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (joined) {
+      Animated.parallel([
+        Animated.spring(slideAnim, {
+          toValue: 0,
+          useNativeDriver: true,
+          speed: 12,
+          bounciness: 6,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [joined]);
 
   if (!match) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-400">マッチが見つかりません</Text>
+        <View className="w-24 h-24 bg-gray-100 rounded-full items-center justify-center mb-4">
+          <Text className="text-4xl">⚽</Text>
+        </View>
+        <Text className="text-lg font-bold text-gray-900 mb-2">
+          マッチが見つかりません
+        </Text>
+        <Text className="text-gray-400 text-center">
+          このマッチは削除されたか{"\n"}
+          存在しない可能性があります。
+        </Text>
       </View>
     );
   }
@@ -83,8 +114,8 @@ export default function MatchDetailScreen() {
           </View>
 
           {/* Progress */}
-          <View className="bg-white rounded-2xl p-4 border border-gray-100">
-            <Text className="text-sm font-semibold text-gray-700 mb-2">
+          <View className="bg-white rounded-2xl p-4 shadow-sm">
+            <Text className="text-base font-bold text-gray-900 mb-2">
               参加状況
             </Text>
             <ProgressBar
@@ -97,8 +128,8 @@ export default function MatchDetailScreen() {
           <OrganizerCard host={match.host} />
 
           {/* Description */}
-          <View className="bg-white rounded-2xl p-4 border border-gray-100">
-            <Text className="text-sm font-semibold text-gray-700 mb-2">
+          <View className="bg-white rounded-2xl p-4 shadow-sm">
+            <Text className="text-base font-bold text-gray-900 mb-2">
               詳細
             </Text>
             <Text className="text-sm text-gray-600 leading-5">
@@ -108,8 +139,8 @@ export default function MatchDetailScreen() {
 
           {/* Rules */}
           {match.rules.length > 0 && (
-            <View className="bg-white rounded-2xl p-4 border border-gray-100">
-              <Text className="text-sm font-semibold text-gray-700 mb-3">
+            <View className="bg-white rounded-2xl p-4 shadow-sm">
+              <Text className="text-base font-bold text-gray-900 mb-3">
                 ルール
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -128,7 +159,7 @@ export default function MatchDetailScreen() {
           {/* Reviews */}
           {match.reviews.length > 0 && (
             <View>
-              <Text className="text-sm font-semibold text-gray-700 mb-3">
+              <Text className="text-base font-bold text-gray-900 mb-3">
                 レビュー（{match.reviews.length}件）
               </Text>
               <View className="gap-3">
@@ -143,12 +174,18 @@ export default function MatchDetailScreen() {
 
       {/* Joined confirmation */}
       {joined && (
-        <View className="px-4 py-3 bg-emerald-50 flex-row items-center gap-2 border-t border-emerald-100">
+        <Animated.View
+          className="px-4 py-3 bg-emerald-50 flex-row items-center gap-2"
+          style={{
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}
+        >
           <CheckCircle size={18} color="#059669" />
           <Text className="text-sm text-emerald-700 flex-1">
             参加確定！当日QRコードを提示してください
           </Text>
-        </View>
+        </Animated.View>
       )}
 
       <StickyButton
