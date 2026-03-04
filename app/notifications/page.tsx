@@ -1,14 +1,12 @@
-import { NotificationsScreen } from "@/components/pickup/notifications-screen"
+"use client"
 
-export const metadata = {
-  title: "通知 | PickUp",
-  description: "通知一覧",
-}
+import { NotificationsScreen } from "@/components/pickup/notifications-screen"
+import { MobileShell } from "@/components/ui/mobile-shell"
 
 export default function NotificationsPage() {
   return (
-    <div className="flex justify-center min-h-screen bg-background">
+    <MobileShell>
       <NotificationsScreen />
-    </div>
+    </MobileShell>
   )
 }

@@ -73,7 +73,7 @@ export function NotificationsScreen() {
   const unreadCount = NOTIFICATIONS.filter((n) => !n.read).length
 
   return (
-    <div className="relative flex flex-col w-full max-w-[390px] min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="flex items-center justify-between px-5 py-4">

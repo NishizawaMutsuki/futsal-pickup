@@ -1,45 +1,10 @@
 "use client"
 
-import { Star, ChevronRight, Calendar, MapPin, CheckCircle, Clock } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ChevronRight, Calendar, MapPin, CheckCircle, Clock } from "lucide-react"
 import { BottomNav } from "./bottom-nav"
-import { MY_PROFILE, MATCHES } from "@/data/mock"
-
-function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
-  const fullStars = Math.floor(rating)
-  const hasHalf = rating % 1 >= 0.5
-  const iconSize = size === "sm" ? "w-3 h-3" : "w-4 h-4"
-
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(5)].map((_, i) => (
-        <Star
-          key={i}
-          className={cn(
-            iconSize,
-            i < fullStars
-              ? "fill-amber-400 text-amber-400"
-              : i === fullStars && hasHalf
-                ? "fill-amber-400/50 text-amber-400"
-                : "text-muted-foreground/30"
-          )}
-        />
-      ))}
-    </div>
-  )
-}
-
-function Avatar({ name, className }: { name?: string; className?: string }) {
-  const initials = name ? name.split(" ").map(n => n[0]).join("").slice(0, 2) : "?"
-  return (
-    <div className={cn(
-      "flex items-center justify-center rounded-full bg-primary/20 text-primary font-bold",
-      className
-    )}>
-      {initials}
-    </div>
-  )
-}
+import { StarRating } from "@/components/ui/star-rating"
+import { Avatar } from "@/components/ui/avatar"
+import { MY_PROFILE, MATCHES, PAST_MATCHES } from "@/data/mock"
 
 const upcomingMatches = MATCHES.slice(0, 2).map((m) => ({
   id: m.id,
@@ -48,30 +13,6 @@ const upcomingMatches = MATCHES.slice(0, 2).map((m) => ({
   time: `${m.startTime}-${m.endTime}`,
   venue: m.venue,
 }))
-
-const pastMatches = [
-  {
-    id: "past1",
-    title: "池袋ナイトフットサル",
-    date: "3/1(土)",
-    venue: "池袋フットサルアリーナ",
-    reviewed: true,
-  },
-  {
-    id: "past2",
-    title: "六本木エンジョイ",
-    date: "2/23(土)",
-    venue: "六本木コート",
-    reviewed: true,
-  },
-  {
-    id: "past3",
-    title: "渋谷ミックスフットサル",
-    date: "2/17(土)",
-    venue: "渋谷フットサルパーク",
-    reviewed: false,
-  },
-]
 
 export function ProfileScreen() {
   return (
@@ -153,7 +94,7 @@ export function ProfileScreen() {
             </button>
           </div>
           <div className="space-y-3">
-            {pastMatches.map((match) => (
+            {PAST_MATCHES.map((match) => (
               <div key={match.id} className="bg-card rounded-2xl border border-border p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">

@@ -1,5 +1,14 @@
 export type SkillLevel = "beginner" | "intermediate" | "advanced"
 
+export interface SkillLevelConfig {
+  label: string
+  badgeStyle: string
+  iconName: "TrendingUp" | "Zap" | "Flame"
+  bg: string
+  text: string
+  color: string
+}
+
 export interface Host {
   id: string
   name: string
@@ -60,15 +69,21 @@ export interface Notification {
   read: boolean
 }
 
-export interface LevelOption {
-  key: string
-  label: string
-  color?: string
+export interface Venue {
+  id: number
+  name: string
+  area: string
 }
 
-export interface LevelConfig {
-  label: string
-  bg: string
-  text: string
-  color: string
+export interface PastMatch {
+  id: string
+  title: string
+  date: string
+  venue: string
+  reviewed: boolean
+}
+
+export interface CapacityLimits {
+  min: number
+  max: number
 }

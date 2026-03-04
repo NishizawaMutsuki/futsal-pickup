@@ -1,13 +1,6 @@
-import type { Match, UserProfile, Notification, LevelOption } from "./types"
+import type { Match, UserProfile, Notification, PastMatch } from "./types"
 
 export const AREAS = ["渋谷", "新宿", "代々木", "六本木", "池袋", "恵比寿"]
-
-export const LEVELS: LevelOption[] = [
-  { key: "all", label: "すべて" },
-  { key: "beginner", label: "初心者OK", color: "emerald" },
-  { key: "intermediate", label: "経験者", color: "amber" },
-  { key: "advanced", label: "ガチ", color: "red" },
-]
 
 export const MATCHES: Match[] = [
   {
@@ -258,6 +251,30 @@ export const MY_PROFILE: UserProfile = {
   ],
 }
 
+export const PAST_MATCHES: PastMatch[] = [
+  {
+    id: "past1",
+    title: "池袋ナイトフットサル",
+    date: "3/1(土)",
+    venue: "池袋フットサルアリーナ",
+    reviewed: true,
+  },
+  {
+    id: "past2",
+    title: "六本木エンジョイ",
+    date: "2/23(土)",
+    venue: "六本木コート",
+    reviewed: true,
+  },
+  {
+    id: "past3",
+    title: "渋谷ミックスフットサル",
+    date: "2/17(土)",
+    venue: "渋谷フットサルパーク",
+    reviewed: false,
+  },
+]
+
 export const NOTIFICATIONS: Notification[] = [
   {
     id: "n1",
@@ -317,9 +334,6 @@ export const NOTIFICATIONS: Notification[] = [
 
 export const getMatchById = (id: string): Match | undefined =>
   MATCHES.find((m) => m.id === id)
-
-export const getLevelConfig = (key: string): LevelOption =>
-  LEVELS.find((l) => l.key === key) || LEVELS[0]
 
 export const getSpotsLeft = (match: Match): number =>
   match.maxPlayers - match.currentPlayers

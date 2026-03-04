@@ -1,67 +1,16 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, Star, TrendingUp, Zap, Flame, ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight } from "lucide-react"
 import type { Match } from "@/data/types"
-import { LEVEL_CONFIG } from "@/data/constants"
-
-const skillStyleConfig: Record<string, { style: string; icon: React.ReactNode }> = {
-  "初心者OK": {
-    style: "bg-primary/15 border-primary/30 text-primary",
-    icon: <TrendingUp className="w-3 h-3" />,
-  },
-  "経験者": {
-    style: "bg-amber-500/15 border-amber-500/30 text-amber-400",
-    icon: <Zap className="w-3 h-3" />,
-  },
-  "ガチ": {
-    style: "bg-destructive/15 border-destructive/30 text-destructive",
-    icon: <Flame className="w-3 h-3" />,
-  },
-}
-
-function StarRating({ rating, size = "sm" }: { rating: number; size?: "sm" | "md" }) {
-  const fullStars = Math.floor(rating)
-  const hasHalf = rating % 1 >= 0.5
-  const iconSize = size === "sm" ? "w-3 h-3" : "w-4 h-4"
-
-  return (
-    <div className="flex items-center gap-0.5">
-      {[...Array(5)].map((_, i) => (
-        <Star
-          key={i}
-          className={cn(
-            iconSize,
-            i < fullStars
-              ? "fill-amber-400 text-amber-400"
-              : i === fullStars && hasHalf
-                ? "fill-amber-400/50 text-amber-400"
-                : "text-muted-foreground/30"
-          )}
-        />
-      ))}
-    </div>
-  )
-}
-
-function Avatar({ name, className }: { name?: string; className?: string }) {
-  const initials = name ? name.split(" ").map(n => n[0]).join("").slice(0, 2) : "?"
-  return (
-    <div className={cn(
-      "flex items-center justify-center rounded-full bg-primary/20 text-primary font-bold",
-      className
-    )}>
-      {initials}
-    </div>
-  )
-}
+import { SkillBadge } from "@/components/ui/skill-badge"
+import { StarRating } from "@/components/ui/star-rating"
+import { Avatar } from "@/components/ui/avatar"
+import { formatMatchDate } from "@/lib/format"
 
 export function MatchDetail({ match }: { match: Match }) {
   const router = useRouter()
-  const levelLabel = LEVEL_CONFIG[match.level]?.label ?? match.level
-  const skill = skillStyleConfig[levelLabel]
-  const dateDisplay = `${match.date.slice(5).replace("-", "/")}(${match.dayLabel}) ${match.startTime}-${match.endTime}`
+  const dateDisplay = formatMatchDate(match)
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -90,15 +39,7 @@ export function MatchDetail({ match }: { match: Match }) {
             <h1 className="text-xl font-bold text-foreground leading-tight">
               {match.title}
             </h1>
-            {skill && (
-              <span className={cn(
-                "shrink-0 flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg border",
-                skill.style
-              )}>
-                {skill.icon}
-                {levelLabel}
-              </span>
-            )}
+            <SkillBadge level={match.level} size="md" />
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="w-4 h-4 text-primary" />

@@ -2,9 +2,9 @@
 
 import { MatchCard } from "./match-card"
 import { Flame } from "lucide-react"
-import { MATCHES } from "@/data/mock"
+import type { Match } from "@/data/types"
 
-export function MatchList() {
+export function MatchList({ matches, count }: { matches: Match[]; count: number }) {
   return (
     <div className="px-5 py-3">
       <div className="flex items-center justify-between mb-4">
@@ -14,7 +14,7 @@ export function MatchList() {
             募集中のマッチ
           </h2>
           <span className="text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-            {MATCHES.length}件
+            {count}件
           </span>
         </div>
         <button className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
@@ -22,7 +22,7 @@ export function MatchList() {
         </button>
       </div>
       <div className="flex flex-col gap-3">
-        {MATCHES.map((match, i) => (
+        {matches.map((match, i) => (
           <MatchCard key={match.id} match={match} index={i} />
         ))}
       </div>

@@ -15,36 +15,27 @@ import {
   Plus
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { VENUES, SKILL_LEVEL_OPTIONS, CAPACITY_LIMITS } from "@/data/constants"
+import type { SkillLevel, Venue } from "@/data/types"
 
-const skillLevels = [
-  { id: "beginner", label: "初心者OK" },
-  { id: "intermediate", label: "経験者" },
-  { id: "advanced", label: "ガチ" },
-] as const
-
-const venues = [
-  { id: 1, name: "渋谷フットサルコート", area: "渋谷区" },
-  { id: 2, name: "新宿スポーツセンター", area: "新宿区" },
-  { id: 3, name: "六本木ヒルズアリーナ", area: "港区" },
-  { id: 4, name: "池袋サンシャインコート", area: "豊島区" },
-]
+const skillLevels = SKILL_LEVEL_OPTIONS.filter((o) => o.key !== "all") as { key: SkillLevel; label: string }[]
 
 export function CreateMatchForm() {
   const router = useRouter()
   const [title, setTitle] = useState("")
-  const [selectedVenue, setSelectedVenue] = useState<typeof venues[0] | null>(null)
+  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [showVenueModal, setShowVenueModal] = useState(false)
   const [venueSearch, setVenueSearch] = useState("")
   const [date, setDate] = useState("")
   const [startTime, setStartTime] = useState("19:00")
   const [endTime, setEndTime] = useState("21:00")
-  const [skillLevel, setSkillLevel] = useState<string>("beginner")
+  const [skillLevel, setSkillLevel] = useState<SkillLevel>("beginner")
   const [capacity, setCapacity] = useState(10)
   const [fee, setFee] = useState("1500")
   const [rules, setRules] = useState("")
   const [autoApprove, setAutoApprove] = useState(true)
 
-  const filteredVenues = venues.filter(v =>
+  const filteredVenues = VENUES.filter(v =>
     v.name.includes(venueSearch) || v.area.includes(venueSearch)
   )
 
@@ -151,11 +142,11 @@ export function CreateMatchForm() {
             <div className="flex bg-input rounded-xl p-1 border border-border">
               {skillLevels.map((level) => (
                 <button
-                  key={level.id}
-                  onClick={() => setSkillLevel(level.id)}
+                  key={level.key}
+                  onClick={() => setSkillLevel(level.key)}
                   className={cn(
                     "flex-1 h-10 rounded-lg text-sm font-medium transition-all",
-                    skillLevel === level.id
+                    skillLevel === level.key
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
                   )}
@@ -178,13 +169,13 @@ export function CreateMatchForm() {
               </div>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCapacity(Math.max(2, capacity - 1))}
+                  onClick={() => setCapacity(Math.max(CAPACITY_LIMITS.min, capacity - 1))}
                   className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
                 >
                   <Minus className="w-4 h-4 text-foreground" />
                 </button>
                 <button
-                  onClick={() => setCapacity(Math.min(30, capacity + 1))}
+                  onClick={() => setCapacity(Math.min(CAPACITY_LIMITS.max, capacity + 1))}
                   className="w-8 h-8 rounded-lg bg-secondary hover:bg-secondary/80 flex items-center justify-center transition-colors"
                 >
                   <Plus className="w-4 h-4 text-foreground" />
