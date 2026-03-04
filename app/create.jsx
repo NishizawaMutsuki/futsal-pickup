@@ -1,47 +1,29 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
-  Switch,
-  Animated,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { X, Minus, Plus, CheckCircle } from "lucide-react-native";
+import {
+  X,
+  Minus,
+  Plus,
+  Users,
+  Banknote,
+  CheckCircle,
+} from "lucide-react-native";
 import StickyButton from "../components/StickyButton";
 import FocusInput from "../components/FocusInput";
 
 function FormField({ label, children }) {
   return (
-    <View className="gap-1.5">
-      <Text className="text-sm font-semibold text-gray-900">{label}</Text>
+    <View className="gap-2">
+      <Text className="text-sm font-bold text-gray-900">{label}</Text>
       {children}
     </View>
-  );
-}
-
-function LevelOption({ label, value, selected, onSelect }) {
-  return (
-    <TouchableOpacity
-      onPress={() => onSelect(value)}
-      className={
-        selected
-          ? "flex-1 py-3 rounded-xl bg-emerald-600 items-center"
-          : "flex-1 py-3 rounded-xl bg-gray-100 items-center"
-      }
-    >
-      <Text
-        className={
-          selected
-            ? "text-sm font-semibold text-white"
-            : "text-sm text-gray-600"
-        }
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
   );
 }
 
@@ -50,35 +32,14 @@ export default function CreateMatchScreen() {
   const [title, setTitle] = useState("");
   const [venue, setVenue] = useState("");
   const [date, setDate] = useState("");
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
+  const [startTime, setStartTime] = useState("19:00");
+  const [endTime, setEndTime] = useState("21:00");
   const [level, setLevel] = useState("beginner");
   const [maxPlayers, setMaxPlayers] = useState(10);
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
   const [autoApprove, setAutoApprove] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-
-  const scaleAnim = useRef(new Animated.Value(0.5)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    if (submitted) {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          useNativeDriver: true,
-          speed: 12,
-          bounciness: 8,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    }
-  }, [submitted]);
 
   const canSubmit = title && venue && date && startTime && endTime && price;
 
@@ -88,13 +49,7 @@ export default function CreateMatchScreen() {
         className="flex-1 bg-white items-center justify-center px-8"
         style={{ paddingTop: insets.top }}
       >
-        <Animated.View
-          className="items-center gap-4"
-          style={{
-            opacity: opacityAnim,
-            transform: [{ scale: scaleAnim }],
-          }}
-        >
+        <View className="items-center gap-4">
           <View className="w-20 h-20 bg-emerald-100 rounded-full items-center justify-center">
             <CheckCircle size={40} color="#059669" />
           </View>
@@ -111,26 +66,34 @@ export default function CreateMatchScreen() {
           >
             <Text className="text-white font-semibold">閉じる</Text>
           </TouchableOpacity>
-        </Animated.View>
+        </View>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100">
-        <TouchableOpacity onPress={() => router.back()}>
-          <X size={24} color="#374151" />
+      <View
+        className="flex-row items-center justify-between px-4 py-3 bg-white/90 border-b border-gray-200"
+        style={{ paddingTop: insets.top + 4 }}
+      >
+        <Text className="text-lg font-bold text-gray-900">マッチを作成</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="w-10 h-10 rounded-xl bg-gray-100 items-center justify-center"
+        >
+          <X size={20} color="#111827" />
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900">マッチを作成</Text>
-        <View className="w-6" />
       </View>
 
-      <ScrollView className="flex-1 px-4" contentContainerStyle={{ gap: 20, paddingVertical: 20 }}>
+      <ScrollView
+        className="flex-1 px-4"
+        contentContainerStyle={{ gap: 20, paddingVertical: 20 }}
+      >
         <FormField label="タイトル">
           <FocusInput
-            placeholder="例: 渋谷エンジョイフットサル"
+            placeholder="渋谷エンジョイフットサル"
             placeholderTextColor="#9ca3af"
             value={title}
             onChangeText={setTitle}
@@ -139,7 +102,7 @@ export default function CreateMatchScreen() {
 
         <FormField label="会場">
           <FocusInput
-            placeholder="例: アディダス フットサルパーク 渋谷"
+            placeholder="アディダス フットサルパーク 渋谷"
             placeholderTextColor="#9ca3af"
             value={venue}
             onChangeText={setVenue}
@@ -148,86 +111,101 @@ export default function CreateMatchScreen() {
 
         <FormField label="日付">
           <FocusInput
-            placeholder="例: 2026-03-15"
+            placeholder="2026-03-15"
             placeholderTextColor="#9ca3af"
             value={date}
             onChangeText={setDate}
           />
         </FormField>
 
-        <View className="flex-row gap-3">
-          <View className="flex-1">
-            <FormField label="開始時間">
+        {/* Time */}
+        <FormField label="時間">
+          <View className="flex-row items-center gap-3">
+            <View className="flex-1">
               <FocusInput
                 placeholder="19:00"
                 placeholderTextColor="#9ca3af"
                 value={startTime}
                 onChangeText={setStartTime}
               />
-            </FormField>
-          </View>
-          <View className="flex-1">
-            <FormField label="終了時間">
+            </View>
+            <Text className="text-gray-400 font-medium">-</Text>
+            <View className="flex-1">
               <FocusInput
                 placeholder="21:00"
                 placeholderTextColor="#9ca3af"
                 value={endTime}
                 onChangeText={setEndTime}
               />
-            </FormField>
+            </View>
           </View>
-        </View>
+        </FormField>
 
+        {/* Skill level - segmented control */}
         <FormField label="レベル">
-          <View className="flex-row gap-2">
-            <LevelOption
-              label="初心者OK"
-              value="beginner"
-              selected={level === "beginner"}
-              onSelect={setLevel}
-            />
-            <LevelOption
-              label="経験者"
-              value="intermediate"
-              selected={level === "intermediate"}
-              onSelect={setLevel}
-            />
-            <LevelOption
-              label="ガチ"
-              value="advanced"
-              selected={level === "advanced"}
-              onSelect={setLevel}
-            />
+          <View className="flex-row bg-gray-100 rounded-xl p-1 border border-gray-200">
+            {[
+              { id: "beginner", label: "初心者OK" },
+              { id: "intermediate", label: "経験者" },
+              { id: "advanced", label: "ガチ" },
+            ].map((opt) => (
+              <TouchableOpacity
+                key={opt.id}
+                onPress={() => setLevel(opt.id)}
+                className={
+                  level === opt.id
+                    ? "flex-1 h-10 rounded-lg bg-emerald-600 items-center justify-center"
+                    : "flex-1 h-10 rounded-lg items-center justify-center"
+                }
+              >
+                <Text
+                  className={
+                    level === opt.id
+                      ? "text-sm font-medium text-white"
+                      : "text-sm font-medium text-gray-500"
+                  }
+                >
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </FormField>
 
+        {/* Capacity */}
         <FormField label="定員">
-          <View className="flex-row items-center gap-4">
-            <TouchableOpacity
-              onPress={() => setMaxPlayers(Math.max(4, maxPlayers - 1))}
-              className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
-            >
-              <Minus size={18} color="#374151" />
-            </TouchableOpacity>
-            <Text className="text-2xl font-bold text-gray-900 w-12 text-center">
-              {maxPlayers}
-            </Text>
-            <TouchableOpacity
-              onPress={() => setMaxPlayers(Math.min(20, maxPlayers + 1))}
-              className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center"
-            >
-              <Plus size={18} color="#374151" />
-            </TouchableOpacity>
-            <Text className="text-sm text-gray-400">人</Text>
+          <View className="flex-row items-center justify-between h-12 px-4 rounded-xl bg-gray-100 border border-gray-200">
+            <View className="flex-row items-center gap-3">
+              <Users size={20} color="#059669" />
+              <Text className="text-gray-900 font-medium">
+                {maxPlayers}人
+              </Text>
+            </View>
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                onPress={() => setMaxPlayers(Math.max(4, maxPlayers - 1))}
+                className="w-8 h-8 rounded-lg bg-white items-center justify-center"
+              >
+                <Minus size={16} color="#374151" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setMaxPlayers(Math.min(20, maxPlayers + 1))}
+                className="w-8 h-8 rounded-lg bg-white items-center justify-center"
+              >
+                <Plus size={16} color="#374151" />
+              </TouchableOpacity>
+            </View>
           </View>
         </FormField>
 
+        {/* Fee */}
         <FormField label="参加費">
-          <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-3 border-2 border-transparent">
-            <Text className="text-base text-gray-400 mr-1">¥</Text>
+          <View className="flex-row items-center bg-gray-100 border border-gray-200 rounded-xl px-4 h-12">
+            <Banknote size={20} color="#059669" />
+            <Text className="text-gray-900 font-medium ml-2">¥</Text>
             <FocusInput
-              className="flex-1"
-              placeholder="1800"
+              className="flex-1 ml-1 bg-transparent border-0"
+              placeholder="1500"
               placeholderTextColor="#9ca3af"
               keyboardType="number-pad"
               value={price}
@@ -236,39 +214,70 @@ export default function CreateMatchScreen() {
           </View>
         </FormField>
 
-        <FormField label="説明">
+        {/* Rules / description */}
+        <FormField label="ルール・備考">
           <FocusInput
-            placeholder="マッチの雰囲気やルールを書きましょう"
+            placeholder="ビブス持参不要、初心者歓迎！"
             placeholderTextColor="#9ca3af"
             multiline
-            numberOfLines={4}
+            numberOfLines={3}
             textAlignVertical="top"
-            style={{ minHeight: 100 }}
+            style={{ minHeight: 80 }}
             value={description}
             onChangeText={setDescription}
           />
         </FormField>
 
-        <View className="flex-row items-center justify-between bg-gray-50 rounded-xl px-4 py-3">
-          <View>
-            <Text className="text-sm font-semibold text-gray-900">
-              自動承認
-            </Text>
-            <Text className="text-xs text-gray-400 mt-0.5">
-              参加リクエストを自動で承認します
-            </Text>
+        {/* Approval method - segmented control */}
+        <FormField label="承認方法">
+          <View className="flex-row bg-gray-100 rounded-xl p-1 border border-gray-200">
+            <TouchableOpacity
+              onPress={() => setAutoApprove(true)}
+              className={
+                autoApprove
+                  ? "flex-1 h-10 rounded-lg bg-emerald-600 items-center justify-center"
+                  : "flex-1 h-10 rounded-lg items-center justify-center"
+              }
+            >
+              <Text
+                className={
+                  autoApprove
+                    ? "text-sm font-medium text-white"
+                    : "text-sm font-medium text-gray-500"
+                }
+              >
+                自動承認
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setAutoApprove(false)}
+              className={
+                !autoApprove
+                  ? "flex-1 h-10 rounded-lg bg-emerald-600 items-center justify-center"
+                  : "flex-1 h-10 rounded-lg items-center justify-center"
+              }
+            >
+              <Text
+                className={
+                  !autoApprove
+                    ? "text-sm font-medium text-white"
+                    : "text-sm font-medium text-gray-500"
+                }
+              >
+                手動承認
+              </Text>
+            </TouchableOpacity>
           </View>
-          <Switch
-            value={autoApprove}
-            onValueChange={setAutoApprove}
-            trackColor={{ false: "#d1d5db", true: "#a7f3d0" }}
-            thumbColor={autoApprove ? "#059669" : "#f4f4f5"}
-          />
-        </View>
+          <Text className="text-xs text-gray-500 mt-1">
+            {autoApprove
+              ? "参加申請があると自動的に承認されます"
+              : "参加申請を確認してから承認します"}
+          </Text>
+        </FormField>
       </ScrollView>
 
       <StickyButton
-        label="募集を公開する"
+        label="作成する"
         disabled={!canSubmit}
         onPress={() => setSubmitted(true)}
       />

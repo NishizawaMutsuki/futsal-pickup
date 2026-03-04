@@ -1,71 +1,89 @@
 import { View, Text } from "react-native";
-import { MapPin, Calendar, Clock } from "lucide-react-native";
+import { Calendar, MapPin, Users, Banknote } from "lucide-react-native";
 import SkillBadge from "./SkillBadge";
 import ProgressBar from "./ProgressBar";
 import PressableScale from "./PressableScale";
 import { getSpotsLeft } from "../data/mock";
 
-const LEVEL_BAR_CLASS = {
-  beginner: "bg-emerald-400",
-  intermediate: "bg-amber-400",
-  advanced: "bg-red-400",
-};
-
 export default function MatchCard({ match, onPress }) {
   const spotsLeft = getSpotsLeft(match);
-  const barClass = LEVEL_BAR_CLASS[match.level] || "bg-emerald-400";
+  const fillPercent = Math.round(
+    (match.currentPlayers / match.maxPlayers) * 100
+  );
+  const isAlmostFull = fillPercent >= 80;
+  const isFull = match.currentPlayers >= match.maxPlayers;
 
   return (
     <PressableScale
       onPress={onPress}
-      scale={0.97}
-      className="bg-white rounded-2xl p-4 mx-4 mb-4 shadow-md"
+      scale={0.98}
+      className="bg-white rounded-2xl border border-gray-200 p-4 mx-4 mb-3"
     >
-      <View className={`h-1 rounded-full ${barClass} mb-3`} />
+      {/* HOT badge */}
+      {isAlmostFull && !isFull && (
+        <View className="absolute top-0 right-0 rounded-tr-2xl rounded-bl-xl bg-emerald-600 px-2.5 py-1 flex-row items-center gap-1 z-10">
+          <View className="w-1.5 h-1.5 rounded-full bg-white" />
+          <Text className="text-white text-xs font-bold">HOT</Text>
+        </View>
+      )}
 
-      <View className="flex-row items-center justify-between mb-2">
-        <SkillBadge level={match.level} />
-        <Text
-          className={
-            spotsLeft <= 2
-              ? "text-xs font-semibold text-red-500"
-              : "text-xs text-gray-400"
-          }
-        >
-          {spotsLeft > 0 ? `残り${spotsLeft}枠` : "満員"}
-        </Text>
-      </View>
+      {/* FULL badge */}
+      {isFull && (
+        <View className="absolute top-0 right-0 rounded-tr-2xl rounded-bl-xl bg-red-500 px-2.5 py-1 z-10">
+          <Text className="text-white text-xs font-bold">FULL</Text>
+        </View>
+      )}
 
-      <View className="flex-row items-start justify-between mb-3">
-        <Text className="text-lg font-bold text-gray-900 flex-1 mr-2">
+      {/* Title + skill badge */}
+      <View className="flex-row items-start justify-between gap-2 mb-3">
+        <Text className="text-base font-bold text-gray-900 leading-snug flex-1">
           {match.title}
         </Text>
-        <View className="bg-emerald-50 px-2.5 py-0.5 rounded-lg">
-          <Text className="text-base font-bold text-emerald-600">
+        <SkillBadge level={match.level} />
+      </View>
+
+      {/* Date & venue */}
+      <View className="gap-2 mb-4">
+        <View className="flex-row items-center gap-2.5">
+          <View className="w-6 h-6 rounded-lg bg-emerald-50 items-center justify-center">
+            <Calendar size={14} color="#059669" />
+          </View>
+          <Text className="text-xs font-medium text-gray-700">
+            {match.date}（{match.dayLabel}） {match.startTime}〜{match.endTime}
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-2.5">
+          <View className="w-6 h-6 rounded-lg bg-emerald-50 items-center justify-center">
+            <MapPin size={14} color="#059669" />
+          </View>
+          <Text className="text-xs text-gray-500" numberOfLines={1}>
+            {match.venue}
+            <Text className="text-gray-300"> / </Text>
+            {match.area}
+          </Text>
+        </View>
+      </View>
+
+      {/* Capacity & fee */}
+      <View className="flex-row items-center justify-between mb-3">
+        <View className="flex-row items-center gap-1.5">
+          <Users size={16} color="#059669" />
+          <Text className="text-sm font-bold text-gray-900">
+            {match.currentPlayers}
+            <Text className="text-gray-500 font-normal">
+              /{match.maxPlayers}人
+            </Text>
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-lg">
+          <Banknote size={14} color="#059669" />
+          <Text className="text-sm font-bold text-gray-900">
             ¥{match.price.toLocaleString()}
           </Text>
         </View>
       </View>
 
-      <View className="gap-1.5 mb-3">
-        <View className="flex-row items-center gap-1.5">
-          <MapPin size={14} color="#9ca3af" />
-          <Text className="text-sm text-gray-500">{match.venue}</Text>
-        </View>
-        <View className="flex-row items-center gap-1.5">
-          <Calendar size={14} color="#9ca3af" />
-          <Text className="text-sm text-gray-500">
-            {match.date}（{match.dayLabel}）
-          </Text>
-          <Clock size={14} color="#9ca3af" />
-          <Text className="text-sm text-gray-500">
-            {match.startTime}〜{match.endTime}
-          </Text>
-        </View>
-      </View>
-
-      <View className="h-px bg-gray-100 mb-3" />
-
+      {/* Progress bar */}
       <ProgressBar current={match.currentPlayers} max={match.maxPlayers} />
     </PressableScale>
   );

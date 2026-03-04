@@ -1,31 +1,23 @@
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import PressableScale from "./PressableScale";
 
 export default function StickyButton({ label, onPress, disabled = false, icon }) {
   const insets = useSafeAreaInsets();
 
   return (
     <View
-      className="px-4 pt-3 bg-white"
-      style={{
-        paddingBottom: Math.max(insets.bottom, 16),
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.06,
-        shadowRadius: 6,
-        elevation: 8,
-      }}
+      className="p-4 bg-white/90 border-t border-gray-200"
+      style={{ paddingBottom: Math.max(insets.bottom, 16) }}
     >
-      <PressableScale
+      <TouchableOpacity
         onPress={onPress}
         disabled={disabled}
-        scale={0.98}
         className={
           disabled
-            ? "bg-gray-300 rounded-2xl py-4 items-center flex-row justify-center gap-2"
-            : "bg-emerald-600 rounded-2xl py-4 items-center flex-row justify-center gap-2"
+            ? "h-14 rounded-2xl bg-gray-300 items-center flex-row justify-center gap-2"
+            : "h-14 rounded-2xl bg-emerald-600 items-center flex-row justify-center gap-2"
         }
+        activeOpacity={0.8}
       >
         {icon}
         <Text
@@ -37,7 +29,7 @@ export default function StickyButton({ label, onPress, disabled = false, icon })
         >
           {label}
         </Text>
-      </PressableScale>
+      </TouchableOpacity>
     </View>
   );
 }

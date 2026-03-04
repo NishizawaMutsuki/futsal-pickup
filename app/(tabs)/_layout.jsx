@@ -7,13 +7,10 @@ function CreateTabButton(props) {
     <TouchableOpacity
       {...props}
       onPress={() => router.push("/create")}
-      className="items-center justify-center -mt-5"
+      className="flex-1 items-center justify-center"
     >
-      <View className="w-20 h-20 items-center justify-center">
-        <View className="absolute w-20 h-20 bg-emerald-200 rounded-full opacity-50" />
-        <View className="w-16 h-16 bg-emerald-600 rounded-full items-center justify-center shadow-xl">
-          <Plus color="white" size={28} />
-        </View>
+      <View className="w-12 h-12 bg-emerald-600 rounded-2xl items-center justify-center shadow-lg">
+        <Plus color="white" size={24} strokeWidth={2.5} />
       </View>
     </TouchableOpacity>
   );
@@ -27,15 +24,32 @@ export default function TabLayout() {
         tabBarActiveTintColor: "#059669",
         tabBarInactiveTintColor: "#9ca3af",
         tabBarStyle: {
-          borderTopWidth: 0,
-          height: 85,
-          paddingBottom: 25,
-          paddingTop: 8,
+          position: "absolute",
+          bottom: 16,
+          left: 16,
+          right: 16,
+          height: 68,
+          borderRadius: 22,
+          backgroundColor: "rgba(255,255,255,0.95)",
+          borderWidth: 1,
+          borderColor: "rgba(229,231,235,0.6)",
+          borderTopWidth: 1,
+          borderTopColor: "rgba(229,231,235,0.6)",
           shadowColor: "#000",
-          shadowOffset: { width: 0, height: -3 },
-          shadowOpacity: 0.06,
-          shadowRadius: 6,
-          elevation: 8,
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.12,
+          shadowRadius: 20,
+          elevation: 16,
+          paddingBottom: 0,
+          paddingTop: 0,
+        },
+        tabBarItemStyle: {
+          paddingTop: 10,
+          paddingBottom: 10,
+        },
+        tabBarLabelStyle: {
+          fontSize: 9,
+          fontWeight: "600",
         },
       }}
     >
@@ -43,13 +57,15 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "ホーム",
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Home color={color} size={20} strokeWidth={focused ? 2.4 : 1.8} />
+          ),
         }}
       />
       <Tabs.Screen
         name="create-placeholder"
         options={{
-          title: "作成",
+          title: "",
           tabBarButton: (props) => <CreateTabButton {...props} />,
         }}
       />
@@ -57,7 +73,9 @@ export default function TabLayout() {
         name="notifications"
         options={{
           title: "通知",
-          tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />,
+          tabBarIcon: ({ color, focused }) => (
+            <Bell color={color} size={20} strokeWidth={focused ? 2.4 : 1.8} />
+          ),
           tabBarBadge: 3,
         }}
       />
@@ -65,7 +83,9 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "マイページ",
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
+          tabBarIcon: ({ color, focused }) => (
+            <User color={color} size={20} strokeWidth={focused ? 2.4 : 1.8} />
+          ),
         }}
       />
     </Tabs>

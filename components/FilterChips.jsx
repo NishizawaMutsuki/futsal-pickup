@@ -1,37 +1,44 @@
-import { ScrollView, Text } from "react-native";
+import { View, ScrollView, Text, TouchableOpacity } from "react-native";
 import { AREAS } from "../data/mock";
-import PressableScale from "./PressableScale";
+
+const ALL_AREAS = ["すべて", ...AREAS];
 
 export default function FilterChips({ selected, onSelect }) {
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      className="mt-3"
+      className="px-4 py-2"
       contentContainerStyle={{ gap: 8 }}
     >
-      {AREAS.map((area) => (
-        <PressableScale
-          key={area}
-          onPress={() => onSelect(selected === area ? null : area)}
-          scale={0.95}
-          className={
-            selected === area
-              ? "px-4 py-2 rounded-full bg-white"
-              : "px-4 py-2 rounded-full bg-emerald-500/30"
-          }
-        >
-          <Text
-            className={
-              selected === area
-                ? "text-sm font-semibold text-emerald-700"
-                : "text-sm text-white"
+      {ALL_AREAS.map((area) => {
+        const isSelected =
+          area === "すべて" ? selected === null : selected === area;
+        return (
+          <TouchableOpacity
+            key={area}
+            onPress={() =>
+              onSelect(area === "すべて" ? null : area === selected ? null : area)
             }
+            className={
+              isSelected
+                ? "px-4 py-2 rounded-xl bg-emerald-600 border border-emerald-600"
+                : "px-4 py-2 rounded-xl bg-gray-100 border border-gray-200"
+            }
+            activeOpacity={0.7}
           >
-            {area}
-          </Text>
-        </PressableScale>
-      ))}
+            <Text
+              className={
+                isSelected
+                  ? "text-xs font-semibold text-white"
+                  : "text-xs font-semibold text-gray-500"
+              }
+            >
+              {area}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </ScrollView>
   );
 }
