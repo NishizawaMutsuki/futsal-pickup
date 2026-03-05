@@ -10,3 +10,14 @@ export function goBack(router: AppRouterInstance, fallback = "/") {
     router.push(fallback)
   }
 }
+
+/**
+ * Validate redirect path to prevent open redirect attacks.
+ * Only allows relative paths starting with "/" (not "//").
+ */
+export function safeRedirect(next: string, fallback = "/"): string {
+  if (next.startsWith("/") && !next.startsWith("//")) {
+    return next
+  }
+  return fallback
+}

@@ -3,7 +3,7 @@
 import { useState, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
-import { goBack } from "@/lib/navigation"
+import { goBack, safeRedirect } from "@/lib/navigation"
 import { Mail, ArrowLeft } from "lucide-react"
 import { MobileShell } from "@/components/ui/mobile-shell"
 import { createClient } from "@/lib/supabase/client"
@@ -17,7 +17,7 @@ function LoginContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
-  const next = searchParams.get("next") ?? "/"
+  const next = safeRedirect(searchParams.get("next") ?? "/")
   const authError = searchParams.get("error")
 
   const handleGoogleLogin = async () => {

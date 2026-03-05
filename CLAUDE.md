@@ -45,6 +45,19 @@ Config files:
 
 The app is mobile-first (max-w-[390px]). All UI text should be in Japanese.
 
+## Security Rules
+
+- リダイレクト先をURLパラメータ（`?next=`等）で受け取る場合、必ず `safeRedirect()` （`lib/navigation.ts`）でバリデーションすること
+- アクセストークンやシークレットをCLIコマンドの引数に渡さないこと（会話履歴に残る）。環境変数経由で渡す
+
+## External Service Settings (CLI対応不可)
+
+以下はダッシュボードからのみ変更可能。コード変更時に関連する設定変更が必要な場合、必ずユーザーに通知すること：
+- Supabase メールテンプレート（Auth > Templates）
+- Supabase Auth プロバイダ設定（Google OAuth等）
+- Supabase Redirect URLs
+- Vercel 環境変数
+
 ## Key Documentation
 
 - `docs/PLANNING.md` - Product strategy, MVP features, monetization, and phased roadmap
