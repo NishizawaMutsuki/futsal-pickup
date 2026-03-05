@@ -31,7 +31,7 @@ export function BottomNav() {
       className="sticky bottom-0 w-full z-50 pb-5 pt-2 px-5 pointer-events-none animate-slide-up-nav"
       aria-label="メインナビゲーション"
     >
-      <div className="relative flex items-center pointer-events-auto">
+      <div className="relative flex items-center pointer-events-auto max-w-[480px] mx-auto w-full">
         {/* Pill bar */}
         <div
           className="flex items-center w-full h-[68px] rounded-[22px] border backdrop-blur-2xl shadow-[0_8px_40px_oklch(0_0_0/0.4)]"

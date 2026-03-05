@@ -21,7 +21,7 @@ export function MatchList({ matches, count }: { matches: Match[]; count: number 
           すべて見る
         </button>
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col md:grid md:grid-cols-2 gap-3">
         {matches.map((match, i) => (
           <MatchCard key={match.id} match={match} index={i} />
         ))}

@@ -109,13 +109,20 @@ export function NotificationsScreen() {
 
       {/* Notification List */}
       <div className="flex-1 pb-4">
-        {notifications.map((notification) => (
-          <NotificationItem
-            key={notification.id}
-            notification={notification}
-            onTap={() => handleTap(notification)}
-          />
-        ))}
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Bell className="w-12 h-12 text-muted-foreground/30 mb-4" />
+            <p className="text-sm text-muted-foreground">通知はありません</p>
+          </div>
+        ) : (
+          notifications.map((notification) => (
+            <NotificationItem
+              key={notification.id}
+              notification={notification}
+              onTap={() => handleTap(notification)}
+            />
+          ))
+        )}
       </div>
 
       {/* Bottom Nav */}
