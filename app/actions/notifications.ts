@@ -1,8 +1,10 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { toNotification } from "@/lib/supabase/transformers"
+import type { Notification } from "@/data/types"
 
-export async function getNotificationsAction() {
+export async function getNotificationsAction(): Promise<{ data: Notification[]; error?: string }> {
   const supabase = await createClient()
   if (!supabase) return { error: "Database not configured", data: [] }
 
@@ -17,7 +19,7 @@ export async function getNotificationsAction() {
     .limit(50)
 
   if (error) return { error: error.message, data: [] }
-  return { data }
+  return { data: (data ?? []).map(toNotification) }
 }
 
 export async function markReadAction(notificationId: string) {

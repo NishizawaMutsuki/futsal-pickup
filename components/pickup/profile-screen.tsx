@@ -3,21 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { ChevronRight, Calendar, MapPin, CheckCircle, Clock, X, LogOut, LogIn } from "lucide-react"
+import { ChevronRight, Calendar, MapPin, X, LogOut, LogIn } from "lucide-react"
 import { BottomNav } from "./bottom-nav"
 import { StarRating } from "@/components/ui/star-rating"
 import { Avatar } from "@/components/ui/avatar"
-import { MATCHES, PAST_MATCHES } from "@/data/mock"
 import { useApp } from "@/contexts/app-context"
 import { cn } from "@/lib/utils"
-
-const upcomingMatches = MATCHES.slice(0, 2).map((m) => ({
-  id: m.id,
-  title: m.title,
-  date: `${m.date.slice(5).replace("-", "/")}(${m.dayLabel})`,
-  time: `${m.startTime}-${m.endTime}`,
-  venue: m.venue,
-}))
 
 function EditProfileModal({ name, position, onSave, onClose }: {
   name: string
@@ -84,8 +75,30 @@ function EditProfileModal({ name, position, onSave, onClose }: {
 
 export function ProfileScreen() {
   const router = useRouter()
-  const { user, profile, updateProfile, signOut } = useApp()
+  const { user, profile, updateProfile, signOut, matches, joinedMatchIds } = useApp()
   const [showEditModal, setShowEditModal] = useState(false)
+
+  const today = new Date().toISOString().split("T")[0]
+  const upcomingMatches = matches
+    .filter((m) => joinedMatchIds.has(m.id) && m.date >= today)
+    .slice(0, 3)
+    .map((m) => ({
+      id: m.id,
+      title: m.title,
+      date: `${m.date.slice(5).replace("-", "/")}(${m.dayLabel})`,
+      time: `${m.startTime}-${m.endTime}`,
+      venue: m.venue,
+    }))
+
+  const pastMatches = matches
+    .filter((m) => joinedMatchIds.has(m.id) && m.date < today)
+    .slice(0, 5)
+    .map((m) => ({
+      id: m.id,
+      title: m.title,
+      date: `${m.date.slice(5).replace("-", "/")}(${m.dayLabel})`,
+      venue: m.venue,
+    }))
 
   const handleSaveProfile = (name: string, position: string) => {
     updateProfile({ name, position })
@@ -201,39 +214,31 @@ export function ProfileScreen() {
         </section>
 
         {/* Past Matches */}
-        <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "240ms" }}>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-foreground">参加履歴</h2>
-          </div>
-          <div className="space-y-3">
-            {PAST_MATCHES.map((match) => (
-              <div key={match.id} className="bg-card rounded-2xl border border-border p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-bold text-foreground truncate">{match.title}</h3>
-                      {match.reviewed ? (
-                        <span className="shrink-0 flex items-center gap-1 text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                          <CheckCircle className="w-3 h-3" />
-                          レビュー済
-                        </span>
-                      ) : (
-                        <span className="shrink-0 flex items-center gap-1 text-[10px] font-medium text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
-                          <Clock className="w-3 h-3" />
-                          未レビュー
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      <span>{match.date}</span>
-                      <span className="truncate">{match.venue}</span>
+        {pastMatches.length > 0 && (
+          <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "240ms" }}>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold text-foreground">参加履歴</h2>
+            </div>
+            <div className="space-y-3">
+              {pastMatches.map((match) => (
+                <Link key={match.id} href={`/match/${match.id}`}>
+                  <div className="bg-card rounded-2xl border border-border p-4 hover:bg-card/80 transition-colors">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold text-foreground truncate">{match.title}</h3>
+                        <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                          <span>{match.date}</span>
+                          <span className="truncate">{match.venue}</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Reviews */}
         <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "320ms" }}>

@@ -1,6 +1,8 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { toMatch } from "@/lib/supabase/transformers"
+import type { Match } from "@/data/types"
 
 interface CreateMatchInput {
   title: string
@@ -17,7 +19,7 @@ interface CreateMatchInput {
   autoApprove: boolean
 }
 
-export async function createMatchAction(input: CreateMatchInput) {
+export async function createMatchAction(input: CreateMatchInput): Promise<{ data?: Match; error?: string }> {
   const supabase = await createClient()
   if (!supabase) return { error: "Database not configured" }
 
@@ -41,7 +43,11 @@ export async function createMatchAction(input: CreateMatchInput) {
       rules: input.rules,
       auto_approve: input.autoApprove,
     })
-    .select()
+    .select(`
+      *,
+      host:profiles!matches_host_id_fkey(id, name, avatar_url, rating, host_count, verified),
+      participations(id, user_id, status)
+    `)
     .single()
 
   if (error) return { error: error.message }
@@ -53,13 +59,21 @@ export async function createMatchAction(input: CreateMatchInput) {
     status: "confirmed",
   })
 
-  // Update host count
-  await supabase.rpc("increment_host_count", { user_uuid: user.id }).catch(() => {})
+  // Re-fetch to include the participation
+  const { data: refetched } = await supabase
+    .from("matches")
+    .select(`
+      *,
+      host:profiles!matches_host_id_fkey(id, name, avatar_url, rating, host_count, verified),
+      participations(id, user_id, status)
+    `)
+    .eq("id", data.id)
+    .single()
 
-  return { data }
+  return { data: toMatch(refetched ?? data) }
 }
 
-export async function getMatchesAction() {
+export async function getMatchesAction(): Promise<{ data: Match[]; error?: string }> {
   const supabase = await createClient()
   if (!supabase) return { error: "Database not configured", data: [] }
 
@@ -75,10 +89,10 @@ export async function getMatchesAction() {
     .order("date", { ascending: true })
 
   if (error) return { error: error.message, data: [] }
-  return { data }
+  return { data: (data ?? []).map(toMatch) }
 }
 
-export async function getMatchByIdAction(id: string) {
+export async function getMatchByIdAction(id: string): Promise<{ data?: Match; error?: string }> {
   const supabase = await createClient()
   if (!supabase) return { error: "Database not configured" }
 
@@ -94,5 +108,5 @@ export async function getMatchByIdAction(id: string) {
     .single()
 
   if (error) return { error: error.message }
-  return { data }
+  return { data: toMatch(data) }
 }

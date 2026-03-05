@@ -1,6 +1,8 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { toUserProfile } from "@/lib/supabase/transformers"
+import type { UserProfile } from "@/data/types"
 
 export async function updateProfileAction(updates: { name?: string; position?: string }) {
   const supabase = await createClient()
@@ -22,7 +24,7 @@ export async function updateProfileAction(updates: { name?: string; position?: s
   return { success: true }
 }
 
-export async function getProfileAction() {
+export async function getProfileAction(): Promise<{ data?: UserProfile; error?: string }> {
   const supabase = await createClient()
   if (!supabase) return { error: "Database not configured" }
 
@@ -39,7 +41,7 @@ export async function getProfileAction() {
     .single()
 
   if (error) return { error: error.message }
-  return { data }
+  return { data: toUserProfile(data) }
 }
 
 export async function reportUserAction(input: {

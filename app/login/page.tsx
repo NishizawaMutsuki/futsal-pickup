@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense } from "react"
 import { goBack } from "@/lib/navigation"
@@ -13,8 +13,10 @@ function LoginContent() {
   const searchParams = useSearchParams()
   const [email, setEmail] = useState("")
   const [sent, setSent] = useState(false)
+  const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([])
   const next = searchParams.get("next") ?? "/"
   const authError = searchParams.get("error")
 
@@ -37,7 +39,7 @@ function LoginContent() {
     }
   }
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
     const supabase = createClient()
@@ -47,16 +49,70 @@ function LoginContent() {
     }
     setLoading(true)
     setError("")
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    })
+    const { error } = await supabase.auth.signInWithOtp({ email })
     if (error) {
       setError(error.message)
     } else {
       setSent(true)
+      setOtp(["", "", "", "", "", ""])
+      setTimeout(() => otpRefs.current[0]?.focus(), 100)
+    }
+    setLoading(false)
+  }
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) value = value.slice(-1)
+    if (value && !/^\d$/.test(value)) return
+    const newOtp = [...otp]
+    newOtp[index] = value
+    setOtp(newOtp)
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus()
+    }
+    const code = newOtp.join("")
+    if (code.length === 6) {
+      verifyOtp(code)
+    }
+  }
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus()
+    }
+  }
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    e.preventDefault()
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6)
+    if (!pasted) return
+    const newOtp = [...otp]
+    for (let i = 0; i < 6; i++) {
+      newOtp[i] = pasted[i] || ""
+    }
+    setOtp(newOtp)
+    if (pasted.length === 6) {
+      verifyOtp(pasted)
+    } else {
+      otpRefs.current[pasted.length]?.focus()
+    }
+  }
+
+  const verifyOtp = async (code: string) => {
+    const supabase = createClient()
+    if (!supabase) return
+    setLoading(true)
+    setError("")
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token: code,
+      type: "email",
+    })
+    if (error) {
+      setError("認証コードが正しくありません。もう一度お試しください。")
+      setOtp(["", "", "", "", "", ""])
+      setTimeout(() => otpRefs.current[0]?.focus(), 100)
+    } else {
+      router.push(next)
     }
     setLoading(false)
   }
@@ -67,7 +123,15 @@ function LoginContent() {
         {/* Header */}
         <header className="flex items-center px-4 py-3">
           <button
-            onClick={() => goBack(router)}
+            onClick={() => {
+              if (sent) {
+                setSent(false)
+                setOtp(["", "", "", "", "", ""])
+                setError("")
+              } else {
+                goBack(router)
+              }
+            }}
             className="flex items-center justify-center w-10 h-10 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors"
             aria-label="戻る"
           >
@@ -110,13 +174,43 @@ function LoginContent() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Mail className="w-8 h-8 text-primary" />
               </div>
-              <h2 className="text-lg font-bold text-foreground mb-2">メールを確認してください</h2>
-              <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">{email}</span> にログインリンクを送信しました
+              <h2 className="text-lg font-bold text-foreground mb-2">認証コードを入力</h2>
+              <p className="text-sm text-muted-foreground mb-6">
+                <span className="font-medium text-foreground">{email}</span> に6桁のコードを送信しました
               </p>
+
+              {/* OTP Input */}
+              <div className="flex justify-center gap-2 mb-6" onPaste={handleOtpPaste}>
+                {otp.map((digit, i) => (
+                  <input
+                    key={i}
+                    ref={(el) => { otpRefs.current[i] = el }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={(e) => handleOtpChange(i, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                    disabled={loading}
+                    className="w-11 h-14 text-center text-xl font-bold rounded-xl bg-input border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all disabled:opacity-50"
+                  />
+                ))}
+              </div>
+
+              {loading && (
+                <p className="text-sm text-muted-foreground mb-4">認証中...</p>
+              )}
+
               <button
-                onClick={() => setSent(false)}
-                className="mt-6 text-sm text-primary font-medium"
+                onClick={handleSendOtp as unknown as () => void}
+                disabled={loading}
+                className="text-sm text-primary font-medium disabled:opacity-50"
+              >
+                コードを再送信
+              </button>
+              <button
+                onClick={() => { setSent(false); setOtp(["", "", "", "", "", ""]); setError("") }}
+                className="mt-3 block mx-auto text-sm text-muted-foreground"
               >
                 別のメールアドレスで試す
               </button>
@@ -144,8 +238,8 @@ function LoginContent() {
                 <div className="flex-1 h-px bg-border" />
               </div>
 
-              {/* Magic Link */}
-              <form onSubmit={handleMagicLink} className="space-y-3">
+              {/* Email OTP */}
+              <form onSubmit={handleSendOtp} className="space-y-3">
                 <input
                   type="email"
                   value={email}
@@ -159,7 +253,7 @@ function LoginContent() {
                   disabled={loading || !email.trim()}
                   className="w-full h-12 rounded-xl bg-primary text-primary-foreground font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                 >
-                  {loading ? "送信中..." : "メールでログイン"}
+                  {loading ? "送信中..." : "認証コードを送信"}
                 </button>
               </form>
 

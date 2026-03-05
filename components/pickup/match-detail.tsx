@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight, ExternalLink, Globe } from "lucide-react"
@@ -19,14 +20,20 @@ export function MatchDetail({ match }: { match: Match }) {
   const isJoined = joinedMatchIds.has(match.id)
   const isFull = match.currentPlayers >= match.maxPlayers
 
-  const handleJoin = () => {
+  const [joining, setJoining] = useState(false)
+
+  const handleJoin = async () => {
     if (!user) {
       router.push(`/login?next=${encodeURIComponent(`/match/${match.id}`)}`)
       return
     }
     if (isJoined || isFull) return
-    if (window.confirm(`「${match.title}」に参加しますか？`)) {
-      joinMatch(match.id)
+    if (!window.confirm(`「${match.title}」に参加しますか？`)) return
+    setJoining(true)
+    const result = await joinMatch(match.id)
+    setJoining(false)
+    if (result.error) {
+      alert(`エラー: ${result.error}`)
     }
   }
 
@@ -46,7 +53,7 @@ export function MatchDetail({ match }: { match: Match }) {
   const mapsEmbedUrl = `https://www.google.com/maps?q=${venueQuery}&output=embed`
   const venueSearchUrl = `https://www.google.com/search?q=${venueQuery}`
 
-  const joinButtonLabel = isJoined ? "参加済み" : isFull ? "満員" : "参加する"
+  const joinButtonLabel = joining ? "参加中..." : isJoined ? "参加済み" : isFull ? "満員" : "参加する"
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -259,7 +266,7 @@ export function MatchDetail({ match }: { match: Match }) {
       <div className="sticky bottom-0 w-full z-50 p-4 bg-background/80 backdrop-blur-xl border-t border-border">
         <button
           onClick={handleJoin}
-          disabled={isJoined || isFull}
+          disabled={isJoined || isFull || joining}
           className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base shadow-[0_4px_24px_var(--glow,theme(--color-primary)/0.35)] hover:shadow-[0_6px_32px_var(--glow,theme(--color-primary)/0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
         >
           {joinButtonLabel}

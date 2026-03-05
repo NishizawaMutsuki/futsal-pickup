@@ -22,11 +22,10 @@ import { useApp } from "@/contexts/app-context"
 
 const skillLevels = SKILL_LEVEL_OPTIONS.filter((o) => o.key !== "all") as { key: SkillLevel; label: string }[]
 
-const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"]
 
 export function CreateMatchForm() {
   const router = useRouter()
-  const { user, profile, addMatch } = useApp()
+  const { user, addMatch } = useApp()
 
   // Auth guard: redirect to login if not authenticated
   useEffect(() => {
@@ -61,38 +60,32 @@ export function CreateMatchForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = () => {
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async () => {
     if (!validate()) return
+    setSubmitting(true)
 
-    const dateObj = new Date(date)
-    const dayLabel = DAY_LABELS[dateObj.getDay()]
-
-    addMatch({
-      id: `m_${Date.now()}`,
+    const result = await addMatch({
       title: title.trim(),
-      host: {
-        id: profile.id,
-        name: profile.name,
-        avatar: profile.avatar,
-        rating: profile.rating,
-        matchCount: profile.hostCount,
-        verified: profile.verified,
-      },
       venue: selectedVenue!.name,
       area: selectedVenue!.area,
       date,
-      dayLabel,
       startTime,
       endTime,
       level: skillLevel,
-      currentPlayers: 1,
       maxPlayers: capacity,
       price: parseInt(fee) || 0,
       description: rules || "",
       rules: rules ? rules.split(/[、,\n]+/).map((r) => r.trim()).filter(Boolean) : [],
-      reviews: [],
+      autoApprove,
     })
 
+    setSubmitting(false)
+    if (result.error) {
+      alert(`エラー: ${result.error}`)
+      return
+    }
     alert("マッチを作成しました！")
     router.push("/")
   }
@@ -321,9 +314,10 @@ export function CreateMatchForm() {
       <div className="sticky bottom-0 w-full z-50 p-4 bg-background/80 backdrop-blur-xl border-t border-border">
         <button
           onClick={handleSubmit}
-          className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base shadow-[0_4px_24px_var(--glow,theme(--color-primary)/0.35)] hover:shadow-[0_6px_32px_var(--glow,theme(--color-primary)/0.5)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+          disabled={submitting}
+          className="w-full h-14 rounded-2xl bg-primary text-primary-foreground font-bold text-base shadow-[0_4px_24px_var(--glow,theme(--color-primary)/0.35)] hover:shadow-[0_6px_32px_var(--glow,theme(--color-primary)/0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
         >
-          作成する
+          {submitting ? "作成中..." : "作成する"}
         </button>
       </div>
 
