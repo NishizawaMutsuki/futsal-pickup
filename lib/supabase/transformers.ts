@@ -1,4 +1,4 @@
-import type { Match, Notification, UserProfile, Host, Review } from "@/data/types"
+import type { Match, Message, Notification, UserProfile, Host, Review } from "@/data/types"
 
 const DAY_LABELS = ["日", "月", "火", "水", "木", "金", "土"]
 
@@ -54,6 +54,22 @@ function toReview(row: DbRow): Review {
     rating: row.rating,
     comment: row.comment ?? "",
     date: row.created_at?.split("T")[0] ?? "",
+  }
+}
+
+/** Transform a Supabase message row (with joined sender profile) to Message type */
+export function toMessage(row: DbRow, currentUserId?: string): Message {
+  const sender = row.sender as DbRow | null
+  return {
+    id: row.id,
+    matchId: row.match_id,
+    senderId: row.sender_id,
+    senderName: sender?.name ?? "匿名",
+    senderAvatar: sender?.avatar_url ?? "",
+    text: row.text,
+    isDirect: row.is_direct ?? false,
+    createdAt: formatRelativeTime(row.created_at),
+    isOwn: row.sender_id === currentUserId,
   }
 }
 

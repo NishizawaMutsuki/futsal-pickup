@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from "next/navigation"
-import { Bell, Calendar, Users, Star, XCircle, UserPlus } from "lucide-react"
+import { Bell, Calendar, Users, Star, XCircle, UserPlus, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BottomNav } from "./bottom-nav"
 import { useApp } from "@/contexts/app-context"
@@ -34,6 +34,11 @@ const typeConfig: Record<NotificationType, { icon: typeof Bell; color: string; b
     icon: UserPlus,
     color: "text-purple-600",
     bgColor: "bg-purple-100",
+  },
+  message: {
+    icon: MessageSquare,
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-100",
   },
 }
 

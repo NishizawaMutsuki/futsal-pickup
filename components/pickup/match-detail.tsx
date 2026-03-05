@@ -1,16 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight, ExternalLink, Globe } from "lucide-react"
-import type { Match } from "@/data/types"
+import { ArrowLeft, Share2, Calendar, MapPin, Coins, Users, ClipboardList, ChevronRight, ExternalLink, Globe, MessageSquare, Lock, Send } from "lucide-react"
+import type { Match, Message } from "@/data/types"
 import { SkillBadge } from "@/components/ui/skill-badge"
 import { StarRating } from "@/components/ui/star-rating"
 import { Avatar } from "@/components/ui/avatar"
 import { formatMatchDate } from "@/lib/format"
 import { useApp } from "@/contexts/app-context"
 import { goBack } from "@/lib/navigation"
+import { getMatchMessagesAction, sendMessageAction } from "@/app/actions/messages"
+import { cn } from "@/lib/utils"
 
 export function MatchDetail({ match }: { match: Match }) {
   const router = useRouter()
@@ -236,6 +238,9 @@ export function MatchDetail({ match }: { match: Match }) {
           </div>
         </section>
 
+        {/* Messages Section */}
+        <MessageSection matchId={match.id} user={user} />
+
         {/* Reviews Section */}
         {match.reviews.length > 0 && (
           <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "320ms" }}>
@@ -273,5 +278,137 @@ export function MatchDetail({ match }: { match: Match }) {
         </button>
       </div>
     </div>
+  )
+}
+
+function MessageSection({ matchId, user }: { matchId: string; user: { id: string; name: string } | null }) {
+  const router = useRouter()
+  const [messages, setMessages] = useState<Message[]>([])
+  const [expanded, setExpanded] = useState(false)
+  const [text, setText] = useState("")
+  const [isDirect, setIsDirect] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  const loadMessages = useCallback(async () => {
+    const result = await getMatchMessagesAction(matchId)
+    if (!result.error) {
+      setMessages(result.data)
+    }
+    setLoading(false)
+  }, [matchId])
+
+  useEffect(() => {
+    loadMessages()
+  }, [loadMessages])
+
+  const handleSend = async () => {
+    if (!text.trim() || sending) return
+    setSending(true)
+    const result = await sendMessageAction(matchId, text, isDirect)
+    setSending(false)
+    if (result.error) {
+      alert(`エラー: ${result.error}`)
+      return
+    }
+    if (result.data) {
+      setMessages((prev) => [result.data!, ...prev])
+    }
+    setText("")
+  }
+
+  const visibleMessages = expanded ? messages : messages.slice(0, 5)
+
+  return (
+    <section className="px-4 mt-6 animate-fade-up" style={{ animationDelay: "280ms" }}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-bold text-foreground">メッセージ</h2>
+          {messages.length > 0 && (
+            <span className="text-xs text-muted-foreground">({messages.length}件)</span>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        {/* Message list */}
+        {loading ? (
+          <div className="p-4 text-center text-sm text-muted-foreground">読み込み中...</div>
+        ) : messages.length === 0 ? (
+          <div className="p-4 text-center text-sm text-muted-foreground">まだメッセージはありません</div>
+        ) : (
+          <div className="divide-y divide-border">
+            {visibleMessages.map((msg) => (
+              <div key={msg.id} className={cn("p-3", msg.isOwn && "bg-primary/[0.03]")}>
+                <div className="flex items-center gap-2 mb-1">
+                  <Avatar name={msg.senderName} className="w-6 h-6 text-[9px]" />
+                  <span className="text-xs font-semibold text-foreground">{msg.senderName}</span>
+                  {msg.isDirect && (
+                    <span className="flex items-center gap-0.5 text-[10px] text-indigo-500 font-medium">
+                      <Lock className="w-3 h-3" />
+                      主催者のみ
+                    </span>
+                  )}
+                  <span className="text-[10px] text-muted-foreground ml-auto">{msg.createdAt}</span>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed pl-8">{msg.text}</p>
+              </div>
+            ))}
+            {messages.length > 5 && !expanded && (
+              <button
+                onClick={() => setExpanded(true)}
+                className="w-full p-2.5 text-xs font-medium text-primary hover:bg-secondary/50 transition-colors"
+              >
+                すべてのメッセージを表示（{messages.length}件）
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Input area */}
+        {user ? (
+          <div className="border-t border-border p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                placeholder="メッセージを入力..."
+                className="flex-1 h-9 px-3 text-sm rounded-xl bg-secondary border border-border focus:outline-none focus:ring-1 focus:ring-primary text-foreground placeholder:text-muted-foreground"
+              />
+              <button
+                onClick={handleSend}
+                disabled={!text.trim() || sending}
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-primary-foreground disabled:opacity-40 transition-colors hover:bg-primary/90"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+            <button
+              onClick={() => setIsDirect((v) => !v)}
+              className={cn(
+                "flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors",
+                isDirect
+                  ? "bg-indigo-500/10 text-indigo-500"
+                  : "bg-secondary text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Lock className="w-3 h-3" />
+              {isDirect ? "DM（主催者のみ）" : "公開"}
+            </button>
+          </div>
+        ) : (
+          <div className="border-t border-border p-3">
+            <button
+              onClick={() => router.push(`/login?next=${encodeURIComponent(`/match/${matchId}`)}`)}
+              className="w-full text-sm font-medium text-primary hover:underline"
+            >
+              ログインしてメッセージを送る
+            </button>
+          </div>
+        )}
+      </div>
+    </section>
   )
 }

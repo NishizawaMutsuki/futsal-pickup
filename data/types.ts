@@ -59,9 +59,21 @@ export interface UserProfile {
   reviews: Review[]
 }
 
+export interface Message {
+  id: string
+  matchId: string
+  senderId: string
+  senderName: string
+  senderAvatar: string
+  text: string
+  isDirect: boolean
+  createdAt: string
+  isOwn: boolean
+}
+
 export interface Notification {
   id: string
-  type: "reminder" | "new_match" | "review" | "join" | "cancel"
+  type: "reminder" | "new_match" | "review" | "join" | "cancel" | "message"
   title: string
   message: string
   matchId: string
