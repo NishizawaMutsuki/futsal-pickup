@@ -3,6 +3,8 @@ import { Noto_Sans_JP } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/pickup/theme-provider'
 import { AppProvider } from '@/contexts/app-context'
+import { SearchProvider } from '@/contexts/search-context'
+import { SearchOverlay } from '@/components/pickup/search-overlay'
 import { createClient } from '@/lib/supabase/server'
 import './globals.css'
 
@@ -51,7 +53,10 @@ export default async function RootLayout({
       <body className={`${notoSansJP.className} antialiased`}>
         <ThemeProvider>
           <AppProvider initialUser={initialUser}>
-            {children}
+            <SearchProvider>
+              {children}
+              <SearchOverlay />
+            </SearchProvider>
           </AppProvider>
         </ThemeProvider>
         <Analytics />

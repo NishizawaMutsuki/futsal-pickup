@@ -8,17 +8,15 @@ import { MatchList } from "@/components/pickup/match-list"
 import { BottomNav } from "@/components/pickup/bottom-nav"
 import { MobileShell } from "@/components/ui/mobile-shell"
 import { useMatchFilters } from "@/hooks/use-match-filters"
-import { useApp } from "@/contexts/app-context"
 
 function HomeContent() {
-  const { matches } = useApp()
-  const { area, skillLevel, searchQuery, filteredMatches, matchCount, setArea, setSkillLevel, setSearchQuery } = useMatchFilters()
+  const { area, skillLevel, filteredMatches, matchCount, setArea, setSkillLevel } = useMatchFilters()
 
   return (
     <MobileShell>
       <div className="flex-1 pb-4">
         <Header />
-        <SearchBar value={searchQuery} onChange={setSearchQuery} matches={matches} />
+        <SearchBar />
         <AreaChips selected={area} onSelect={setArea} />
         <SkillTabs active={skillLevel} onSelect={setSkillLevel} />
         <MatchList matches={filteredMatches} count={matchCount} />

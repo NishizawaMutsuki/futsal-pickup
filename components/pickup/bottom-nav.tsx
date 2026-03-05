@@ -4,12 +4,13 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, Search, Plus, Bell, User } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useSearch } from "@/contexts/search-context"
 
 type NavItem = { id: string; icon: typeof Home; label: string; href: string }
 
 const navItems: NavItem[] = [
   { id: "home", icon: Home, label: "ホーム", href: "/" },
-  { id: "search", icon: Search, label: "検索", href: "/?search=1" },
+  { id: "search", icon: Search, label: "検索", href: "" },
   { id: "create", icon: Plus, label: "", href: "/create" },
   { id: "notifications", icon: Bell, label: "通知", href: "/notifications" },
   { id: "profile", icon: User, label: "マイページ", href: "/profile" },
@@ -25,7 +26,9 @@ function getActiveTab(pathname: string): string {
 
 export function BottomNav() {
   const pathname = usePathname()
+  const { open: openSearch } = useSearch()
   const activeTab = getActiveTab(pathname)
+
   return (
     <nav
       className="sticky bottom-0 w-full z-50 pb-5 pt-2 px-5 pointer-events-none animate-slide-up-nav"
@@ -42,6 +45,7 @@ export function BottomNav() {
         >
           {navItems.map((item) => {
             const isCreate = item.id === "create"
+            const isSearch = item.id === "search"
             const isActive = activeTab === item.id
 
             if (isCreate) {
@@ -56,6 +60,31 @@ export function BottomNav() {
                     <Plus className="w-6 h-6 relative" strokeWidth={2.5} />
                   </Link>
                 </div>
+              )
+            }
+
+            if (isSearch) {
+              return (
+                <button
+                  key="search"
+                  type="button"
+                  onClick={openSearch}
+                  className="flex-1 flex flex-col items-center justify-center gap-1 h-full transition-all duration-300 active:scale-90"
+                  aria-label={item.label}
+                >
+                  <div className="relative flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-300">
+                    <Search
+                      className="w-5 h-5 transition-all duration-300 text-muted-foreground"
+                      strokeWidth={1.8}
+                    />
+                  </div>
+                  <span
+                    className="text-[9px] font-semibold transition-all duration-300"
+                    style={{ color: "var(--nav-inactive)" }}
+                  >
+                    {item.label}
+                  </span>
+                </button>
               )
             }
 
